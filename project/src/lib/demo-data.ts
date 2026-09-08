@@ -341,7 +341,7 @@ ${audit.slice(0, 10).map(a => `  [${a.created_at}] ${a.action} by ${a.user_name}
 `.trim();
   }
 
-  private addAuditLog(entry: Omit<AuditLog, 'id' | 'hash' | 'previous_hash' | 'created_at'>): void {
+  addAuditLog(entry: Omit<AuditLog, 'id' | 'hash' | 'previous_hash' | 'created_at'>): void {
     const prev = this.auditLogs[this.auditLogs.length - 1];
     this.auditLogs.push({
       ...entry,

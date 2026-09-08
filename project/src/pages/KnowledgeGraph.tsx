@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { demoStore } from '@/lib/auth';
+import { useCaseData } from '@/lib/useCaseData';
+import Layout from '@/components/Layout';
 import type { Entity, Relationship } from '@/lib/types';
 
 const TYPE_COLORS: Record<string, string> = {
@@ -13,10 +13,8 @@ type Node = { id: string; x: number; y: number; entity: Entity; vx: number; vy: 
 type Edge = { from: Node; to: Node; rel: Relationship };
 
 export default function KnowledgeGraph() {
-  const { caseId } = useParams();
+  const { caseData, entities, relationships, loading } = useCaseData();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const entities = demoStore.getEntities();
-  const relationships = demoStore.getRelationships();
   const [selected, setSelected] = useState<Entity | null>(null);
   const nodesRef = useRef<Node[]>([]);
   const edgesRef = useRef<Edge[]>([]);
@@ -34,7 +32,7 @@ export default function KnowledgeGraph() {
 
     const nodes: Node[] = entities.map((e, i) => {
       const angle = (i / entities.length) * Math.PI * 2;
-      const radius = e.type === 'FIR' ? 0 : 150;
+      const radius = e.type === 'FIR' ? 0 : 160;
       return {
         id: e.id,
         x: cx + Math.cos(angle) * radius,
@@ -75,11 +73,14 @@ export default function KnowledgeGraph() {
 
     // Draw edges
     for (const edge of edgesRef.current) {
+      const gradient = ctx.createLinearGradient(edge.from.x, edge.from.y, edge.to.x, edge.to.y);
+      gradient.addColorStop(0, 'rgba(76, 215, 246, 0.15)');
+      gradient.addColorStop(1, 'rgba(76, 215, 246, 0.08)');
       ctx.beginPath();
       ctx.moveTo(edge.from.x, edge.from.y);
       ctx.lineTo(edge.to.x, edge.to.y);
-      ctx.strokeStyle = 'rgba(76, 215, 246, 0.2)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
       // Arrow
@@ -90,18 +91,18 @@ export default function KnowledgeGraph() {
       ctx.translate(midX, midY);
       ctx.rotate(angle);
       ctx.beginPath();
-      ctx.moveTo(5, 0);
-      ctx.lineTo(-3, -3);
-      ctx.lineTo(-3, 3);
+      ctx.moveTo(6, 0);
+      ctx.lineTo(-4, -4);
+      ctx.lineTo(-4, 4);
       ctx.closePath();
-      ctx.fillStyle = 'rgba(76, 215, 246, 0.4)';
+      ctx.fillStyle = 'rgba(76, 215, 246, 0.3)';
       ctx.fill();
       ctx.restore();
 
       // Label
       ctx.save();
-      ctx.translate(midX, midY - 6);
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.7)';
+      ctx.translate(midX, midY - 8);
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
       ctx.font = '9px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(edge.rel.type.replace(/_/g, ' '), 0, 0);
@@ -112,28 +113,43 @@ export default function KnowledgeGraph() {
     for (const node of nodesRef.current) {
       const color = TYPE_COLORS[node.entity.type] || '#6b7280';
       const isSelected = selected?.id === node.id;
-      const radius = node.entity.type === 'FIR' ? 24 : 16;
+      const radius = node.entity.type === 'FIR' ? 26 : 18;
 
-      // Glow
+      // Outer glow
       if (isSelected || node.entity.type === 'FIR') {
         ctx.beginPath();
-        ctx.arc(node.x, node.y, radius + 8, 0, Math.PI * 2);
-        ctx.fillStyle = color + '20';
+        ctx.arc(node.x, node.y, radius + 10, 0, Math.PI * 2);
+        const glow = ctx.createRadialGradient(node.x, node.y, radius, node.x, node.y, radius + 10);
+        glow.addColorStop(0, color + '15');
+        glow.addColorStop(1, color + '00');
+        ctx.fillStyle = glow;
         ctx.fill();
+      }
+
+      // Selection ring
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffffff30';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
 
       // Node circle
       ctx.beginPath();
       ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#0d141d';
+      const bg = ctx.createRadialGradient(node.x - 4, node.y - 4, 0, node.x, node.y, radius);
+      bg.addColorStop(0, '#141c27');
+      bg.addColorStop(1, '#0d141d');
+      ctx.fillStyle = bg;
       ctx.fill();
-      ctx.strokeStyle = isSelected ? '#fff' : color;
-      ctx.lineWidth = isSelected ? 2.5 : 1.5;
+      ctx.strokeStyle = isSelected ? '#ffffff' : color;
+      ctx.lineWidth = isSelected ? 2 : 1.5;
       ctx.stroke();
 
       // Inner dot
       ctx.beginPath();
-      ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
+      ctx.arc(node.x, node.y, node.entity.type === 'FIR' ? 5 : 3.5, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
 
@@ -141,13 +157,13 @@ export default function KnowledgeGraph() {
       ctx.fillStyle = '#e2e8f0';
       ctx.font = '11px Inter, sans-serif';
       ctx.textAlign = 'center';
-      const label = node.entity.name.length > 18 ? node.entity.name.slice(0, 16) + '…' : node.entity.name;
-      ctx.fillText(label, node.x, node.y + radius + 14);
+      const label = node.entity.name.length > 20 ? node.entity.name.slice(0, 18) + '...' : node.entity.name;
+      ctx.fillText(label, node.x, node.y + radius + 16);
 
       // Type label
       ctx.fillStyle = color;
       ctx.font = '8px Inter, sans-serif';
-      ctx.fillText(node.entity.type, node.x, node.y + radius + 24);
+      ctx.fillText(node.entity.type, node.x, node.y + radius + 26);
     }
 
     ctx.restore();
@@ -168,7 +184,7 @@ export default function KnowledgeGraph() {
     const my = (y - rect.top - panRef.current.y) / zoomRef.current;
     for (const node of nodesRef.current) {
       const dist = Math.hypot(mx - node.x, my - node.y);
-      if (dist < 20) return node;
+      if (dist < 22) return node;
     }
     return null;
   };
@@ -216,91 +232,86 @@ export default function KnowledgeGraph() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d141d] text-white flex">
-      <aside className="w-64 border-r border-[#2a3a4a] flex flex-col fixed h-full">
-        <div className="p-4 border-b border-[#2a3a4a] flex items-center gap-2">
-          <svg viewBox="0 0 48 48" fill="none" className="w-7 h-7"><circle cx="24" cy="24" r="22" stroke="#4cd7f6" strokeWidth="2" fill="#0d141d"/><ellipse cx="24" cy="24" rx="14" ry="8" stroke="#4cd7f6" strokeWidth="1.5" fill="none"/><circle cx="24" cy="24" r="4" fill="#4cd7f6"/><circle cx="24" cy="24" r="1.5" fill="#0d141d"/></svg>
-          <span className="font-bold">Netra</span>
+    <Layout caseId={caseData.id}>
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-10 h-10 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Loading knowledge graph...</p>
+          </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-[#2a3a4a] hover:text-white"><span className="material-symbols-outlined text-[18px]">dashboard</span>Dashboard</Link>
-          <div className="pt-2 pb-1 px-3 text-[10px] text-gray-500 uppercase tracking-widest">Case</div>
-          {[{ p: '', i: 'folder', l: 'Overview' }, { p: '/fir', i: 'description', l: 'FIR Details' }, { p: '/entities', i: 'hub', l: 'Entities' }, { p: '/graph', i: 'lan', l: 'Knowledge Graph' }, { p: '/analytics', i: 'analytics', l: 'Analytics' }, { p: '/evidence', i: 'folder_shared', l: 'Evidence' }, { p: '/audit', i: 'history', l: 'Audit Trail' }, { p: '/report', i: 'summarize', l: 'Report' }].map(n => (
-            <Link key={n.p} to={`/cases/${caseId}${n.p}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-[#2a3a4a] hover:text-white"><span className="material-symbols-outlined text-[18px]">{n.i}</span>{n.l}</Link>
+      ) : (
+      <>
+      <header className="border-b px-6 py-3 sticky top-0 lg:top-0 z-30 backdrop-blur-xl flex items-center justify-between" style={{ background: 'color-mix(in srgb, var(--bg-primary) 85%, transparent)', borderColor: 'var(--border)' }}>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">Knowledge Graph</h1>
+          <p className="text-xs text-gray-500">{entities.length} nodes, {relationships.length} edges — from FIR data</p>
+        </div>
+        <button onClick={resetView} className="px-4 py-2 glass-card hover:bg-white/[0.06] rounded-xl text-xs transition-all duration-200 font-medium">
+          Reset View
+        </button>
+      </header>
+
+      <div className="relative" style={{ height: 'calc(100vh - 52px)' }}>
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
+        />
+
+        {/* Legend */}
+        <div className="absolute top-4 left-4 glass-card p-4 space-y-2 backdrop-blur-xl">
+          <p className="text-[9px] text-gray-400 uppercase tracking-[2px] mb-2 font-medium">Node Types</p>
+          {Object.entries(TYPE_COLORS).map(([type, color]) => (
+            <div key={type} className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}40` }}></div>
+              <span className="text-[10px] text-gray-300">{type}</span>
+            </div>
           ))}
-        </nav>
-      </aside>
+        </div>
 
-      <main className="flex-1 ml-64 relative">
-        <header className="border-b border-[#2a3a4a] px-6 py-3 sticky top-0 bg-[#0d141d]/90 backdrop-blur z-10 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold">Knowledge Graph</h1>
-            <p className="text-xs text-gray-400">{entities.length} nodes, {relationships.length} edges — from FIR data</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={resetView} className="px-3 py-1.5 bg-[#2a3a4a] hover:bg-[#3a4a5a] rounded-lg text-xs transition-colors">Reset View</button>
-          </div>
-        </header>
-
-        <div className="absolute inset-0 top-[53px]">
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full cursor-grab active:cursor-grabbing"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onWheel={handleWheel}
-          />
-
-          {/* Legend */}
-          <div className="absolute top-4 left-4 bg-[#1a2332]/90 backdrop-blur border border-[#2a3a4a] rounded-xl p-3 space-y-1.5">
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Node Types</p>
-            {Object.entries(TYPE_COLORS).map(([type, color]) => (
-              <div key={type} className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }}></div>
-                <span className="text-[10px] text-gray-300">{type}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Selected Node Detail */}
-          {selected && (
-            <div className="absolute top-4 right-4 w-72 bg-[#1a2332]/95 backdrop-blur border border-[#2a3a4a] rounded-xl overflow-hidden">
-              <div className="px-4 py-3 border-b border-[#2a3a4a] flex items-center justify-between">
-                <span className="text-xs font-medium">Node Detail</span>
-                <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-white">
-                  <span className="material-symbols-outlined text-[16px]">close</span>
-                </button>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center border" style={{ borderColor: TYPE_COLORS[selected.type] + '40', background: TYPE_COLORS[selected.type] + '10' }}>
-                    <span className="material-symbols-outlined text-[18px]" style={{ color: TYPE_COLORS[selected.type] }}>hub</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">{selected.name}</p>
-                    <p className="text-[10px] text-gray-400">{selected.type}</p>
-                  </div>
+        {/* Selected Node Detail */}
+        {selected && (
+          <div className="absolute top-4 right-4 w-72 glass-card backdrop-blur-xl overflow-hidden animate-fade-in">
+            <div className="px-4 py-3 border-b border-white/[0.04] flex items-center justify-between">
+              <span className="text-xs font-medium">Node Detail</span>
+              <button onClick={() => setSelected(null)} className="p-1 rounded-lg hover:bg-white/5 transition-colors">
+                <span className="material-symbols-outlined text-[14px] text-gray-400">close</span>
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center border" style={{ borderColor: TYPE_COLORS[selected.type] + '30', background: TYPE_COLORS[selected.type] + '10' }}>
+                  <span className="material-symbols-outlined text-[18px]" style={{ color: TYPE_COLORS[selected.type] }}>hub</span>
                 </div>
-                {Object.keys(selected.metadata).length > 0 && (
-                  <div className="space-y-1.5 pt-2 border-t border-[#2a3a4a]/50">
-                    {Object.entries(selected.metadata).map(([k, v]) => (
-                      <div key={k} className="flex justify-between text-xs">
-                        <span className="text-gray-500">{k}</span>
-                        <span className="font-mono text-gray-300">{String(v)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="pt-2 border-t border-[#2a3a4a]/50">
-                  <p className="text-[10px] text-gray-500">Connections: {relationships.filter(r => r.source_id === selected.id || r.target_id === selected.id).length}</p>
+                <div>
+                  <p className="font-medium text-sm">{selected.name}</p>
+                  <p className="text-[10px] text-gray-400">{selected.type}</p>
                 </div>
+              </div>
+              {selected.metadata && Object.keys(selected.metadata).length > 0 && (
+                <div className="space-y-1.5 pt-2 border-t border-white/[0.04]">
+                  {Object.entries(selected.metadata as Record<string, unknown>).map(([k, v]) => (
+                    <div key={k} className="flex justify-between text-xs">
+                      <span className="text-gray-500">{k}</span>
+                      <span className="font-mono text-gray-300">{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="pt-2 border-t border-white/[0.04]">
+                <p className="text-[10px] text-gray-500">Connections: {relationships.filter(r => r.source_id === selected.id || r.target_id === selected.id).length}</p>
               </div>
             </div>
-          )}
-        </div>
-      </main>
-    </div>
+          </div>
+        )}
+      </div>
+      </>
+      )}
+    </Layout>
   );
 }

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { demoStore, DEMO_PROFILE } from '@/lib/demo-data';
+import { DEMO_PROFILE } from '@/lib/demo-data';
+import { getProfile } from '@/lib/data';
 import type { Profile } from './types';
 
 type AuthContextType = {
@@ -29,9 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return { error: error.message };
     }
-    const { data } = await supabase.from('profiles').select('*').eq('email', email).single();
-    if (data) {
-      setUser(data);
+    const profile = await getProfile(email);
+    if (profile) {
+      setUser(profile);
       setIsDemo(false);
     }
     setLoading(false);
@@ -41,7 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const demoLogin = () => {
     setUser(DEMO_PROFILE);
     setIsDemo(true);
-    demoStore.getAuditLogs();
   };
 
   const signOut = async () => {
@@ -65,4 +65,4 @@ export function useAuth() {
   return ctx;
 }
 
-export { demoStore };
+export { demoStore } from './demo-data';

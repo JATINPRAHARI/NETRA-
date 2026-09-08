@@ -1,191 +1,237 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, demoStore } from '@/lib/auth';
+import { getCases, getFIRsByCase, getEntities, getRelationships, getEvidence } from '@/lib/data';
+import type { Case, FIR, Entity, Relationship, EvidenceRecord } from '@/lib/types';
+import Layout from '@/components/Layout';
+
+function AnimatedCounter({ value, duration = 800 }: { value: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const step = Math.ceil(value / (duration / 16));
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= value) { setCount(value); clearInterval(timer); }
+      else setCount(start);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [value, duration]);
+  return <>{count}</>;
+}
 
 export default function Dashboard() {
-  const { user, isDemo, signOut } = useAuth();
-  const caseData = demoStore.getCase();
-  const fir = demoStore.getFIR();
-  const entities = demoStore.getEntities();
-  const relationships = demoStore.getRelationships();
-  const evidence = demoStore.getEvidence();
+  const { user, isDemo } = useAuth();
+  const [cases, setCases] = useState<Case[]>([demoStore.getCase()]);
+  const [fir, setFir] = useState<FIR>(demoStore.getFIR());
+  const [entities, setEntities] = useState<Entity[]>(demoStore.getEntities());
+  const [relationships, setRelationships] = useState<Relationship[]>(demoStore.getRelationships());
+  const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const c = await getCases();
+      setCases(c);
+      if (c[0]) {
+        const [firs, ents, rels, evi] = await Promise.all([
+          getFIRsByCase(c[0].id),
+          getEntities(c[0].id),
+          getRelationships(c[0].id),
+          getEvidence(c[0].id),
+        ]);
+        if (firs[0]) setFir(firs[0]);
+        setEntities(ents);
+        setRelationships(rels);
+        setEvidence(evi);
+      }
+    }
+    load();
+  }, []);
+
+  const caseData = cases[0] ?? demoStore.getCase();
 
   const stats = [
-    { label: 'Total Cases', value: 1, icon: 'folder', color: 'text-[#4cd7f6]' },
-    { label: 'Total FIRs', value: 1, icon: 'description', color: 'text-[#4cd7f6]' },
-    { label: 'Entities', value: entities.length, icon: 'hub', color: 'text-[#4cd7f6]' },
-    { label: 'Relationships', value: relationships.length, icon: 'lan', color: 'text-[#4cd7f6]' },
-    { label: 'Evidence', value: evidence.length, icon: 'folder_shared', color: 'text-[#4cd7f6]' },
+    { label: 'Cases', value: cases.length, icon: 'folder', gradient: 'from-blue-500/10 to-blue-500/5' },
+    { label: 'FIRs', value: 1, icon: 'description', gradient: 'from-[#4cd7f6]/10 to-[#4cd7f6]/5' },
+    { label: 'Entities', value: entities.length, icon: 'hub', gradient: 'from-purple-500/10 to-purple-500/5' },
+    { label: 'Relations', value: relationships.length, icon: 'lan', gradient: 'from-amber-500/10 to-amber-500/5' },
+    { label: 'Evidence', value: evidence.length, icon: 'folder_shared', gradient: 'from-emerald-500/10 to-emerald-500/5' },
+  ];
+
+  type InfoItem = { label: string; value: string | number | null; mono?: boolean; color?: string; truncate?: boolean };
+  type InfoCard = { title: string; icon: string; items: InfoItem[] };
+  const infoCards: InfoCard[] = [
+    {
+      title: 'FIR Information',
+      icon: 'description',
+      items: [
+        { label: 'FIR Number', value: fir.fir_number, mono: true },
+        { label: 'Type', value: fir.fir_type },
+        { label: 'Stage', value: fir.fir_stage },
+        { label: 'Complaint Mode', value: fir.complaint_mode },
+        { label: 'Date', value: `${fir.fir_day}/${fir.fir_month}/${fir.fir_year}` },
+      ],
+    },
+    {
+      title: 'Crime Information',
+      icon: 'gavel',
+      items: [
+        { label: 'Crime Group', value: fir.crime_group_name },
+        { label: 'Crime Head', value: fir.crime_head_name },
+        { label: 'Act/Section', value: fir.act_section },
+        { label: 'District', value: fir.district_name },
+        { label: 'Place', value: fir.place_of_offence, truncate: true },
+      ],
+    },
+    {
+      title: 'Victim & Accused',
+      icon: 'groups',
+      items: [
+        { label: 'Victims', value: fir.victim_count, color: 'text-[#4cd7f6]' },
+        { label: 'Accused', value: fir.accused_count, color: 'text-amber-400' },
+        { label: 'Arrested', value: fir.arrested_count, color: 'text-emerald-400' },
+        { label: 'Chargesheeted', value: fir.accused_chargesheeted, color: 'text-purple-400' },
+        { label: 'Convictions', value: fir.conviction_count, color: 'text-red-400' },
+      ],
+    },
+    {
+      title: 'Location',
+      icon: 'location_on',
+      items: [
+        { label: 'District', value: fir.district_name },
+        { label: 'Place', value: fir.place_of_offence, truncate: true },
+        { label: 'Beat', value: fir.beat_name },
+        { label: 'Distance from PS', value: fir.distance_from_ps },
+        { label: 'Coordinates', value: fir.latitude && fir.longitude ? `${fir.latitude}, ${fir.longitude}` : 'N/A', mono: true },
+      ],
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0d141d] text-white">
-      {/* Header */}
-      <header className="border-b border-[#2a3a4a] px-6 py-4 flex items-center justify-between">
+    <Layout caseId={caseData.id}>
+      <header className="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-xl" style={{ background: 'color-mix(in srgb, var(--bg-primary) 85%, transparent)', borderColor: 'var(--border)' }}>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Karnataka FIR Dataset — 1 Record</p>
+        </div>
         <div className="flex items-center gap-3">
-          <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-            <circle cx="24" cy="24" r="22" stroke="#4cd7f6" strokeWidth="2" fill="#0d141d"/>
-            <ellipse cx="24" cy="24" rx="14" ry="8" stroke="#4cd7f6" strokeWidth="1.5" fill="none"/>
-            <circle cx="24" cy="24" r="4" fill="#4cd7f6"/>
-            <circle cx="24" cy="24" r="1.5" fill="#0d141d"/>
-          </svg>
-          <span className="font-bold text-lg">Netra</span>
           {isDemo && (
-            <span className="text-[10px] bg-[#4cd7f6]/10 text-[#4cd7f6] border border-[#4cd7f6]/20 px-2 py-0.5 rounded uppercase tracking-wider">
+            <span className="text-[10px] bg-[#4cd7f6]/10 text-[#4cd7f6] border border-[#4cd7f6]/20 px-3 py-1 rounded-lg uppercase tracking-wider font-medium">
               Demo Mode
             </span>
           )}
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-400">{user?.name}</span>
-          <button onClick={signOut} className="text-sm text-gray-400 hover:text-white transition-colors">
-            Sign Out
-          </button>
-        </div>
       </header>
 
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Title */}
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Prototype using one FIR record from Karnataka Police Dataset
-          </p>
-        </div>
-
-        {/* Prototype Banner */}
-        <div className="bg-[#4cd7f6]/5 border border-[#4cd7f6]/20 rounded-xl p-4 flex items-center gap-3">
-          <span className="material-symbols-outlined text-[#4cd7f6]">info</span>
-          <div>
-            <p className="text-sm font-medium text-[#4cd7f6]">NETRA — Prototype</p>
-            <p className="text-xs text-gray-400">Karnataka FIR Dataset — 1 Record. All data flows from a single FIR.</p>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {stats.map(s => (
-            <div key={s.label} className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-400 uppercase tracking-wider">{s.label}</span>
-                <span className={`material-symbols-outlined text-[18px] ${s.color}`}>{s.icon}</span>
+      <div className="max-w-7xl mx-auto p-6 space-y-8 animate-fade-in">
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {stats.map((s, i) => (
+            <div key={s.label} className="stat-card group stagger-item" style={{ animationDelay: `${i * 0.05}s` }}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{s.label}</span>
+                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <span className="material-symbols-outlined text-[16px] text-[#4cd7f6]">{s.icon}</span>
+                </div>
               </div>
-              <p className="text-2xl font-bold">{s.value}</p>
+              <p className="text-3xl font-extrabold tracking-tight">
+                <AnimatedCounter value={s.value} />
+              </p>
             </div>
           ))}
         </div>
 
         {/* Case Card */}
-        <div className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#2a3a4a] flex items-center justify-between">
-            <h2 className="font-semibold">Active Cases</h2>
-            <span className="text-xs text-gray-400">1 case</span>
+        <div className="glass-card-hover stagger-item overflow-hidden" style={{ animationDelay: '0.3s' }}>
+          <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'var(--accent-muted)' }}>
+                <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--accent)' }}>folder</span>
+              </div>
+              <div>
+                <h2 className="font-bold text-base">Active Cases</h2>
+                <p className="text-xs text-gray-400">{cases.length} case{cases.length !== 1 ? 's' : ''}</p>
+              </div>
+            </div>
           </div>
           <Link
             to={`/cases/${caseData.id}`}
-            className="block px-6 py-4 hover:bg-[#2a3a4a]/30 transition-colors border-b border-[#2a3a4a]/50 last:border-0"
+            className="block px-6 py-5 transition-all duration-300 group"
+            style={{ '--hover-bg': 'var(--bg-card-hover)' } as React.CSSProperties}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-[#4cd7f6]/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#4cd7f6]">folder</span>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300" style={{ background: 'var(--accent-muted)' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--accent)' }}>folder</span>
                 </div>
                 <div>
-                  <p className="font-medium">{caseData.title}</p>
-                  <p className="text-xs text-gray-400 font-mono">{caseData.id}</p>
+                  <p className="font-bold group-hover:text-[var(--accent)] transition-colors">{caseData.title}</p>
+                  <p className="text-xs text-gray-400 font-mono mt-0.5">{caseData.id}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-[#4cd7f6]/10 text-[#4cd7f6] border border-[#4cd7f6]/20 uppercase tracking-wider">
-                    {caseData.priority}
-                  </span>
-                </div>
-                <span className="material-symbols-outlined text-gray-500">chevron_right</span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider font-semibold" style={{ background: 'var(--accent-muted)', color: 'var(--accent)' }}>
+                  {caseData.priority}
+                </span>
+                <span className="material-symbols-outlined group-hover:translate-x-1 transition-all duration-300" style={{ color: 'var(--text-muted)' }}>chevron_right</span>
               </div>
             </div>
-            <div className="mt-3 grid grid-cols-4 gap-4 text-xs text-gray-400">
-              <span>Status: <span className="text-white">{caseData.status}</span></span>
-              <span>Crime: <span className="text-white">{fir.crime_group_name}</span></span>
-              <span>District: <span className="text-white">{fir.district_name}</span></span>
-              <span>IO: <span className="text-white">{fir.io_name}</span></span>
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Status</span>
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold">{caseData.status}</span>
+              </div>
+              <div><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Crime: </span><span className="font-bold">{fir.crime_group_name}</span></div>
+              <div><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>District: </span><span className="font-bold">{fir.district_name}</span></div>
+              <div><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>IO: </span><span className="font-bold">{fir.io_name}</span></div>
             </div>
           </Link>
         </div>
 
-        {/* FIR Quick Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4cd7f6] text-[18px]">description</span>
-              FIR Information
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-400">FIR Number</span><span className="font-mono">{fir.fir_number}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Type</span><span>{fir.fir_type || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Stage</span><span>{fir.fir_stage || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Complaint Mode</span><span>{fir.complaint_mode || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Date</span><span>{fir.fir_day}/{fir.fir_month}/{fir.fir_year}</span></div>
+        {/* Info Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {infoCards.map((card, ci) => (
+            <div key={card.title} className="glass-card stagger-item overflow-hidden" style={{ animationDelay: `${0.35 + ci * 0.05}s` }}>
+              <div className="px-5 py-3.5 border-b flex items-center gap-2.5" style={{ borderColor: 'var(--border)' }}>
+                <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--accent)' }}>{card.icon}</span>
+                <span className="text-base font-bold">{card.title}</span>
+              </div>
+              <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
+                {card.items.map(item => (
+                  <div key={item.label} className="px-5 py-2.5 flex items-center justify-between text-sm transition-colors">
+                    <span className="font-semibold text-xs" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                    <span className={`text-sm font-bold ${item.mono ? 'font-mono' : ''} ${item.color || ''} ${item.truncate ? 'text-right max-w-[180px] truncate' : ''}`}>
+                      {item.value || 'Not Available'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4cd7f6] text-[18px]">gavel</span>
-              Crime Information
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-400">Crime Group</span><span>{fir.crime_group_name || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Crime Head</span><span>{fir.crime_head_name || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Act/Section</span><span>{fir.act_section || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">District</span><span>{fir.district_name || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Place</span><span className="text-right max-w-[200px]">{fir.place_of_offence || 'Not Available'}</span></div>
-            </div>
-          </div>
-
-          <div className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4cd7f6] text-[18px]">groups</span>
-              Victim & Accused
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-400">Victim Count</span><span>{fir.victim_count}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Accused Count</span><span>{fir.accused_count}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Arrested</span><span>{fir.arrested_count}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Chargesheeted</span><span>{fir.accused_chargesheeted}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Convictions</span><span>{fir.conviction_count}</span></div>
-            </div>
-          </div>
-
-          <div className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4cd7f6] text-[18px]">location_on</span>
-              Location
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-400">District</span><span>{fir.district_name || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Place</span><span className="text-right max-w-[200px]">{fir.place_of_offence || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Beat</span><span>{fir.beat_name || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Distance from PS</span><span>{fir.distance_from_ps || 'Not Available'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Coordinates</span><span className="font-mono text-xs">{fir.latitude && fir.longitude ? `${fir.latitude}, ${fir.longitude}` : 'Not Available'}</span></div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-item" style={{ animationDelay: '0.6s' }}>
           {[
-            { to: `/cases/${caseData.id}/fir`, icon: 'description', label: 'FIR Details' },
-            { to: `/cases/${caseData.id}/graph`, icon: 'hub', label: 'Knowledge Graph' },
-            { to: `/cases/${caseData.id}/analytics`, icon: 'analytics', label: 'Analytics' },
-            { to: `/cases/${caseData.id}/evidence`, icon: 'folder_shared', label: 'Evidence' },
+            { to: `/cases/${caseData.id}/fir`, icon: 'description', label: 'FIR Details', desc: 'View complete FIR data' },
+            { to: `/cases/${caseData.id}/graph`, icon: 'hub', label: 'Knowledge Graph', desc: 'Interactive entity graph' },
+            { to: `/cases/${caseData.id}/analytics`, icon: 'analytics', label: 'Analytics', desc: 'Risk & investigation' },
+            { to: `/cases/${caseData.id}/evidence`, icon: 'folder_shared', label: 'Evidence', desc: 'SHA-256 verified files' },
           ].map(a => (
-            <Link key={a.to} to={a.to} className="bg-[#1a2332] border border-[#2a3a4a] rounded-xl p-4 hover:border-[#4cd7f6]/30 transition-colors flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#4cd7f6]">{a.icon}</span>
-              <span className="text-sm font-medium">{a.label}</span>
+            <Link key={a.to} to={a.to} className="glass-card-hover p-5 group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300" style={{ background: 'var(--accent-muted)' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--accent)' }}>{a.icon}</span>
+                </div>
+                <div>
+                  <span className="text-base font-bold block group-hover:text-[var(--accent)] transition-colors">{a.label}</span>
+                  <span className="text-xs text-gray-400">{a.desc}</span>
+                </div>
+              </div>
             </Link>
           ))}
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
