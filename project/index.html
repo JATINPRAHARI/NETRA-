@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Netra | Intelligence Core</title>
+    <meta property="og:title" content="Netra | Intelligence Core" />
+    <meta property="og:description" content="AI-Powered Criminal Network Intelligence" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <style>
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #0d141d;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        transition: opacity 0.4s ease-out;
+      }
+      #splash.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #splash svg {
+        width: 72px;
+        height: 72px;
+        animation: pulse-glow 2s ease-in-out infinite;
+      }
+      #splash .splash-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.5px;
+      }
+      #splash .splash-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: #4cd7f6;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        opacity: 0.7;
+      }
+      #splash .splash-bar {
+        width: 120px;
+        height: 2px;
+        background: #1a2332;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      #splash .splash-bar-fill {
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #4cd7f6, transparent);
+        border-radius: 2px;
+        animation: slide-bar 1.2s ease-in-out infinite;
+      }
+      @keyframes pulse-glow {
+        0%, 100% { filter: drop-shadow(0 0 8px rgba(76,215,246,0.3)); }
+        50% { filter: drop-shadow(0 0 20px rgba(76,215,246,0.6)); }
+      }
+      @keyframes slide-bar {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(350%); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="splash">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="22" stroke="#4cd7f6" stroke-width="2" fill="#0d141d"/>
+        <ellipse cx="24" cy="24" rx="14" ry="8" stroke="#4cd7f6" stroke-width="1.5" fill="none"/>
+        <circle cx="24" cy="24" r="4" fill="#4cd7f6"/>
+        <circle cx="24" cy="24" r="1.5" fill="#0d141d"/>
+        <line x1="10" y1="24" x2="18" y2="24" stroke="#4cd7f6" stroke-width="0.8" opacity="0.5"/>
+        <line x1="30" y1="24" x2="38" y2="24" stroke="#4cd7f6" stroke-width="0.8" opacity="0.5"/>
+        <line x1="24" y1="14" x2="24" y2="18" stroke="#4cd7f6" stroke-width="0.8" opacity="0.5"/>
+        <line x1="24" y1="30" x2="24" y2="34" stroke="#4cd7f6" stroke-width="0.8" opacity="0.5"/>
+        <circle cx="10" cy="24" r="1.2" fill="#4cd7f6" opacity="0.6"/>
+        <circle cx="38" cy="24" r="1.2" fill="#4cd7f6" opacity="0.6"/>
+        <circle cx="24" cy="14" r="1.2" fill="#4cd7f6" opacity="0.6"/>
+        <circle cx="24" cy="34" r="1.2" fill="#4cd7f6" opacity="0.6"/>
+      </svg>
+      <div class="splash-text">Netra</div>
+      <div class="splash-sub">Intelligence Core</div>
+      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var splash = document.getElementById('splash');
+          if (splash) {
+            splash.classList.add('hide');
+            setTimeout(function() { splash.remove(); }, 500);
+          }
+        }, 600);
+      });
+    </script>
+  </body>
+</html>
