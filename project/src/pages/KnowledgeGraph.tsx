@@ -266,26 +266,18 @@ export default function KnowledgeGraph() {
   }, [applyForces]);
 
   useEffect(() => {
-    const onResize = () => syncCanvasSize();
-    window.addEventListener('resize', onResize);
-    let ro: ResizeObserver | null = null;
-    if (containerRef.current) {
-      ro = new ResizeObserver(() => {
-        syncCanvasSize();
-        if (sizeRef.current.w > 0 && sizeRef.current.h > 0 && nodesRef.current.length === 0) {
-          initGraph();
-        }
-      });
-      ro.observe(containerRef.current);
-    }
-    syncCanvasSize();
-    if (sizeRef.current.w > 0 && sizeRef.current.h > 0) {
+    if (loading) return;
+    const id = requestAnimationFrame(() => {
+      syncCanvasSize();
       initGraph();
-    }
-    return () => {
-      window.removeEventListener('resize', onResize);
-      ro?.disconnect();
-    };
+    });
+    return () => cancelAnimationFrame(id);
+  }, [loading, syncCanvasSize, initGraph]);
+
+  useEffect(() => {
+    const onResize = () => { syncCanvasSize(); initGraph(); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [syncCanvasSize, initGraph]);
 
   const getNodeAt = (x: number, y: number): Node | null => {
