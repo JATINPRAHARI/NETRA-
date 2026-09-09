@@ -32,7 +32,6 @@ export default function KnowledgeGraph() {
   const simulatingRef = useRef(true);
   const [simulating, setSimulating] = useState(true);
   const lastTouchRef = useRef<{ x: number; y: number; dist: number } | null>(null);
-  const doubleClickRef = useRef<{ time: number; x: number; y: number }>({ time: 0, x: 0, y: 0 });
   const velocityRef = useRef<{ vx: number; vy: number }>({ vx: 0, vy: 0 });
   const prevDragRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
@@ -91,8 +90,8 @@ export default function KnowledgeGraph() {
       for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i];
         const b = nodes[j];
-        let dx = a.x - b.x;
-        let dy = a.y - b.y;
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
         let dist = Math.hypot(dx, dy);
         if (dist < 1) dist = 1;
         const minDist = REPULSION_DISTANCE;

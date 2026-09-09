@@ -29,8 +29,10 @@ export default function Dashboard() {
   const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       const c = await getCases();
+      if (cancelled) return;
       setCases(c);
       if (c[0]) {
         const [firs, ents, rels, evi] = await Promise.all([
@@ -39,6 +41,7 @@ export default function Dashboard() {
           getRelationships(c[0].id),
           getEvidence(c[0].id),
         ]);
+        if (cancelled) return;
         if (firs[0]) setFir(firs[0]);
         setEntities(ents);
         setRelationships(rels);
@@ -46,6 +49,7 @@ export default function Dashboard() {
       }
     }
     load();
+    return () => { cancelled = true; };
   }, []);
 
   const caseData = cases[0] ?? demoStore.getCase();

@@ -32,7 +32,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f18] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       {/* Animated background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 grid-bg opacity-50"></div>
@@ -66,43 +66,45 @@ export default function Login() {
               </circle>
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Netra</h1>
-          <p className="text-xs text-[#4cd7f6]/70 tracking-[4px] uppercase mt-1.5 font-medium">Intelligence Core</p>
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Netra</h1>
+          <p className="text-xs tracking-[4px] uppercase mt-1.5 font-medium" style={{ color: 'color-mix(in srgb, var(--accent) 70%, transparent)' }}>Intelligence Core</p>
         </div>
 
         {/* Login Card */}
         <div className="glass-card p-8 shadow-2xl shadow-black/20">
           <div className="mb-6">
-            <h2 className="text-xl font-extrabold text-white mb-1">Secure Access</h2>
-            <p className="text-sm text-gray-300">Authenticate to enter the intelligence network.</p>
+            <h2 className="text-xl font-extrabold mb-1" style={{ color: 'var(--text-primary)' }}>Secure Access</h2>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Authenticate to enter the intelligence network.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <label htmlFor="login-email" className="block text-xs text-gray-300 mb-1.5 uppercase tracking-[2px] font-bold">Email</label>
+              <label htmlFor="login-email" className="block text-xs mb-1.5 uppercase tracking-[2px] font-bold" style={{ color: 'var(--text-secondary)' }}>Email</label>
               <div className="relative rounded-xl transition-all duration-300 focus-within:ring-1 focus-within:ring-[#4cd7f6]/30">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-gray-500">mail</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px]" style={{ color: 'var(--text-muted)' }}>mail</span>
                 <input
                   id="login-email"
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-[#4cd7f6]/40 transition-all placeholder:text-gray-600"
+                  className="w-full border rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none transition-all"
+                  style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                   placeholder="officer@netra.gov.in"
                   required
                 />
               </div>
             </div>
             <div className="relative">
-              <label htmlFor="login-password" className="block text-xs text-gray-300 mb-1.5 uppercase tracking-[2px] font-bold">Password</label>
+              <label htmlFor="login-password" className="block text-xs mb-1.5 uppercase tracking-[2px] font-bold" style={{ color: 'var(--text-secondary)' }}>Password</label>
               <div className="relative rounded-xl transition-all duration-300 focus-within:ring-1 focus-within:ring-[#4cd7f6]/30">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-gray-500">lock</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px]" style={{ color: 'var(--text-muted)' }}>lock</span>
                 <input
                   id="login-password"
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-[#4cd7f6]/40 transition-all placeholder:text-gray-600"
+                  className="w-full border rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none transition-all"
+                  style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                   placeholder="Enter your password"
                   required
                 />
@@ -131,20 +133,21 @@ export default function Login() {
           </form>
 
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-            <span className="text-[9px] text-gray-500 uppercase tracking-[3px]">or</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+            <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--border), transparent)' }}></div>
+            <span className="text-[9px] uppercase tracking-[3px]" style={{ color: 'var(--text-muted)' }}>or</span>
+            <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--border), transparent)' }}></div>
           </div>
 
           <button
             onClick={handleDemo}
-            className="w-full bg-white/[0.04] hover:bg-white/[0.08] text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 border border-white/[0.06] hover:border-[#4cd7f6]/20 active:scale-[0.98]"
+            className="w-full font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 border active:scale-[0.98]"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
           >
-            <span className="material-symbols-outlined text-[18px] text-[#4cd7f6]">play_circle</span>
+            <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--accent)' }}>play_circle</span>
             Demo Access
           </button>
 
-          <p className="text-center text-[9px] text-gray-600 mt-5 uppercase tracking-[2px]">
+          <p className="text-center text-[9px] mt-5 uppercase tracking-[2px]" style={{ color: 'var(--text-muted)' }}>
             Prototype — Karnataka FIR Dataset
           </p>
         </div>
