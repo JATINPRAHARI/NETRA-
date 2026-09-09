@@ -22,8 +22,8 @@ export const DEMO_CASE: Case = {
   title: 'Operation Nexus',
   status: 'Active',
   priority: 'High',
-  description: 'Investigation into theft case reported at Jayamahal Police Station, Bangalore Urban district. Single FIR prototype for NETRA system validation.',
-  source: 'Karnataka Police FIR Dataset — 1 Record',
+  description: 'Investigation into theft case reported at Jayamahal Police Station, Bangalore Urban district.',
+  source: 'Karnataka Police',
   created_by: '00000000-0000-0000-0000-000000000001',
   created_at: '2026-08-15T10:00:00Z',
   updated_at: '2026-08-15T10:00:00Z',
@@ -124,7 +124,7 @@ class DemoStore {
     {
       id: 'audit-001', action: 'CASE_CREATED', user_id: null, user_name: 'Inspector A. Sharma',
       case_id: 'CASE-2026-001', resource_type: 'case', resource_id: 'CASE-2026-001',
-      details: { title: 'Operation Nexus', source: 'Karnataka Police FIR Dataset' },
+      details: { title: 'Operation Nexus', source: 'Karnataka Police' },
       hash: null, previous_hash: null, created_at: '2026-08-15T10:00:00Z',
     },
     {
@@ -219,7 +219,7 @@ class DemoStore {
     return `
 ═══════════════════════════════════════════════════════════════
                     NETRA — INVESTIGATION REPORT
-                   Prototype — Karnataka FIR Dataset
+                  Criminal Intelligence Platform
 ═══════════════════════════════════════════════════════════════
 
 Generated: ${new Date().toISOString()}
@@ -335,8 +335,8 @@ ${audit.slice(0, 10).map(a => `  [${a.created_at}] ${a.action} by ${a.user_name}
   Results are analytical leads and require verification by
   authorized investigators.
   
-  Data Source: Karnataka Police FIR Dataset — 1 Record
-  Prototype using one FIR record
+  Data Source: Karnataka Police
+  Decision-support tool for investigators
 ═══════════════════════════════════════════════════════════════
 `.trim();
   }

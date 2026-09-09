@@ -148,7 +148,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-[9px] mt-5 uppercase tracking-[2px]" style={{ color: 'var(--text-muted)' }}>
-            Prototype — Karnataka FIR Dataset
+            Criminal Intelligence Platform
           </p>
         </div>
       </div>

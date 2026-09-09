@@ -91,7 +91,7 @@ export default function Report() {
                   <svg viewBox="0 0 48 48" fill="none" className="w-10 h-10"><circle cx="24" cy="24" r="22" stroke="#4cd7f6" strokeWidth="2" fill="#0a0f18"/><ellipse cx="24" cy="24" rx="14" ry="8" stroke="#4cd7f6" strokeWidth="1.5" fill="none"/><circle cx="24" cy="24" r="4" fill="#4cd7f6"/><circle cx="24" cy="24" r="1.5" fill="#0a0f18"/></svg>
                   <div>
                     <h1 className="text-xl font-bold">Netra — Case Intelligence Report</h1>
-                    <p className="text-xs text-gray-400">Prototype — Karnataka FIR Dataset — 1 Record</p>
+                    <p className="text-xs text-gray-400">NETRA — Criminal Intelligence Platform</p>
                   </div>
                 </div>
                 <div className="text-right text-xs text-gray-400">
@@ -216,7 +216,7 @@ export default function Report() {
 
               <div className="border-t border-gray-200 pt-4 mt-6">
                 <p className="text-[10px] text-gray-400 text-center">
-                  NETRA — Prototype | Karnataka FIR Dataset — 1 Record | Generated {new Date().toLocaleString()} | {user?.name}
+                  NETRA — Criminal Intelligence Platform | Generated {new Date().toLocaleString()} | {user?.name}
                 </p>
               </div>
             </div>

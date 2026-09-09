@@ -26,7 +26,7 @@ export default function CaseOverview() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[10px] bg-[#4cd7f6]/10 text-[#4cd7f6] border border-[#4cd7f6]/20 px-3 py-1 rounded-lg uppercase tracking-wider font-medium">
-              {isDemo ? 'Prototype' : caseData.source}
+              {caseData.source}
             </span>
             <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-lg font-medium">{caseData.status}</span>
           </div>
@@ -36,8 +36,8 @@ export default function CaseOverview() {
       <div className="p-6 space-y-6 animate-fade-in">
         {/* Banner */}
         <div className="glass-card p-5 border-l-2 border-l-[#4cd7f6]">
-          <p className="text-sm text-[#4cd7f6] font-medium">NETRA — Prototype | Karnataka FIR Dataset — 1 Record</p>
-          <p className="text-xs text-gray-400 mt-1">This case contains one FIR from the Karnataka Police FIR Dataset. All entities, relationships, and analytics are derived from this single record.</p>
+          <p className="text-sm text-[#4cd7f6] font-medium">NETRA — Criminal Intelligence Platform</p>
+          <p className="text-xs text-gray-400 mt-1">This case contains FIR data from Karnataka Police. All entities, relationships, and analytics are derived from the available records.</p>
         </div>
 
         {/* 3 Column Info */}
