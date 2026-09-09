@@ -21,7 +21,7 @@ function AnimatedCounter({ value, duration = 800 }: { value: number; duration?: 
 }
 
 export default function Dashboard() {
-  const { user, isDemo } = useAuth();
+  const { isDemo } = useAuth();
   const [cases, setCases] = useState<Case[]>([demoStore.getCase()]);
   const [fir, setFir] = useState<FIR>(demoStore.getFIR());
   const [entities, setEntities] = useState<Entity[]>(demoStore.getEntities());

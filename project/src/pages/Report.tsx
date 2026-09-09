@@ -10,9 +10,21 @@ export default function Report() {
   const [generated, setGenerated] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
+  const [generating, setGenerating] = useState(false);
+  const [reportError, setReportError] = useState('');
+
   const generateReport = async () => {
-    await generateReportDb(caseData.id);
-    setGenerated(true);
+    setGenerating(true);
+    setReportError('');
+    try {
+      await generateReportDb(caseData.id);
+      setGenerated(true);
+    } catch (err) {
+      console.error('Report generation failed:', err);
+      setReportError('Failed to generate report. Please try again.');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handlePrint = () => { window.print(); };
@@ -57,10 +69,19 @@ export default function Report() {
             </p>
             <button
               onClick={generateReport}
-              className="px-8 py-3 bg-gradient-to-r from-[#4cd7f6] to-[#3bc4e3] hover:from-[#3bc4e3] hover:to-[#4cd7f6] text-[#0a0f18] font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-[#4cd7f6]/10 hover:shadow-[#4cd7f6]/20 active:scale-[0.98]"
+              disabled={generating}
+              className="px-8 py-3 bg-gradient-to-r from-[#4cd7f6] to-[#3bc4e3] hover:from-[#3bc4e3] hover:to-[#4cd7f6] text-[#0a0f18] font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-[#4cd7f6]/10 hover:shadow-[#4cd7f6]/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate Report
+              {generating ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-[#0a0f18]/30 border-t-[#0a0f18] rounded-full animate-spin"></div>
+                  Generating...
+                </span>
+              ) : 'Generate Report'}
             </button>
+            {reportError && (
+              <p className="text-xs text-red-400 mt-3">{reportError}</p>
+            )}
           </div>
         ) : (
           <div ref={reportRef} className="bg-white text-gray-900 rounded-2xl overflow-hidden shadow-2xl">
@@ -128,7 +149,7 @@ export default function Report() {
                   <h2 className="text-base font-bold border-b border-gray-200 pb-1 mb-3">3. Risk Assessment</h2>
                   <div className="flex items-center gap-6 mb-3">
                     <div className="text-3xl font-bold">{risk.risk_score}/100</div>
-                    <div className={`text-lg font-bold ${risk.risk_level === 'HIGH' ? 'text-red-600' : risk.risk_level === 'MEDIUM' ? 'text-yellow-600' : 'text-green-600'}`}>{risk.risk_level}</div>
+                    <div className={`text-lg font-bold ${risk.risk_level === 'CRITICAL' ? 'text-red-700' : risk.risk_level === 'HIGH' ? 'text-red-600' : risk.risk_level === 'MEDIUM' ? 'text-yellow-600' : 'text-green-600'}`}>{risk.risk_level}</div>
                   </div>
                   <table className="w-full text-xs">
                     <thead><tr className="border-b border-gray-200"><th className="text-left py-1 text-gray-500">Factor</th><th className="text-right py-1 text-gray-500">Weight</th></tr></thead>

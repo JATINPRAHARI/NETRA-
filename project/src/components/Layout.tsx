@@ -33,7 +33,7 @@ export default function Layout({ caseId, children }: { caseId: string; children:
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b px-4 py-3 flex items-center justify-between" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }}>
+          <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} aria-label="Open navigation menu">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export default function Layout({ caseId, children }: { caseId: string; children:
                 <p className="text-[9px] tracking-[3px] uppercase -mt-0.5" style={{ color: 'color-mix(in srgb, var(--accent) 60%, transparent)' }}>Intelligence Core</p>
               </div>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }} aria-label="Close navigation menu">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
@@ -125,6 +125,7 @@ export default function Layout({ caseId, children }: { caseId: string; children:
             onClick={toggleTheme}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group"
             style={{ color: 'var(--text-secondary)' }}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style={{ background: 'var(--bg-card)' }}>
               <span className="material-symbols-outlined text-[18px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>

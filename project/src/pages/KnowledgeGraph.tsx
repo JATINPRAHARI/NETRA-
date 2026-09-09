@@ -56,11 +56,11 @@ export default function KnowledgeGraph() {
     });
 
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
-    const edges: Edge[] = relationships.map(r => ({
-      from: nodeMap.get(r.source_id)!,
-      to: nodeMap.get(r.target_id)!,
-      rel: r,
-    })).filter(e => e.from && e.to);
+    const edges: Edge[] = relationships.map(r => {
+      const from = nodeMap.get(r.source_id);
+      const to = nodeMap.get(r.target_id);
+      return from && to ? { from, to, rel: r } : null;
+    }).filter((e): e is Edge => e !== null);
 
     nodesRef.current = nodes;
     edgesRef.current = edges;
@@ -240,9 +240,12 @@ export default function KnowledgeGraph() {
 
   useEffect(() => {
     initGraph();
+  }, [initGraph]);
+
+  useEffect(() => {
     animRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(animRef.current);
-  }, [initGraph, draw]);
+  }, [draw]);
 
   useEffect(() => {
     let forceFrame: number;
@@ -272,7 +275,9 @@ export default function KnowledgeGraph() {
   const handleMouseDown = (e: React.MouseEvent) => {
     const node = getNodeAt(e.clientX, e.clientY);
     if (node) {
-      const rect = canvasRef.current!.getBoundingClientRect();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
       const mx = (e.clientX - rect.left - panRef.current.x) / zoomRef.current;
       const my = (e.clientY - rect.top - panRef.current.y) / zoomRef.current;
       dragRef.current = { node, offsetX: mx - node.x, offsetY: my - node.y, dragging: true };
@@ -288,7 +293,9 @@ export default function KnowledgeGraph() {
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragRef.current.dragging && dragRef.current.node) {
       const node = dragRef.current.node;
-      const rect = canvasRef.current!.getBoundingClientRect();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
       node.x = (e.clientX - rect.left - panRef.current.x) / zoomRef.current - dragRef.current.offsetX;
       node.y = (e.clientY - rect.top - panRef.current.y) / zoomRef.current - dragRef.current.offsetY;
       node.vx = 0;
@@ -343,9 +350,11 @@ export default function KnowledgeGraph() {
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.3, Math.min(3, zoomRef.current * delta));
-    const rect = canvasRef.current!.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
     panRef.current.x = mx - (mx - panRef.current.x) * (newZoom / zoomRef.current);
@@ -359,7 +368,9 @@ export default function KnowledgeGraph() {
       const touch = e.touches[0];
       const node = getNodeAt(touch.clientX, touch.clientY);
       if (node) {
-        const rect = canvasRef.current!.getBoundingClientRect();
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
         const mx = (touch.clientX - rect.left - panRef.current.x) / zoomRef.current;
         const my = (touch.clientY - rect.top - panRef.current.y) / zoomRef.current;
         dragRef.current = { node, offsetX: mx - node.x, offsetY: my - node.y, dragging: true };
@@ -388,7 +399,9 @@ export default function KnowledgeGraph() {
     if (e.touches.length === 1 && dragRef.current.dragging && dragRef.current.node) {
       const touch = e.touches[0];
       const node = dragRef.current.node;
-      const rect = canvasRef.current!.getBoundingClientRect();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
       node.x = (touch.clientX - rect.left - panRef.current.x) / zoomRef.current - dragRef.current.offsetX;
       node.y = (touch.clientY - rect.top - panRef.current.y) / zoomRef.current - dragRef.current.offsetY;
       node.vx = 0;
@@ -420,7 +433,9 @@ export default function KnowledgeGraph() {
       const newDist = Math.hypot(dx, dy);
       const scale = newDist / lastTouchRef.current.dist;
       const newZoom = Math.max(0.3, Math.min(3, zoomRef.current * scale));
-      const rect = canvasRef.current!.getBoundingClientRect();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
       const mx = lastTouchRef.current.x - rect.left;
       const my = lastTouchRef.current.y - rect.top;
       panRef.current.x = mx - (mx - panRef.current.x) * (newZoom / zoomRef.current);
@@ -491,6 +506,8 @@ export default function KnowledgeGraph() {
         <canvas
           ref={canvasRef}
           className="w-full h-full cursor-grab active:cursor-grabbing"
+          aria-label="Interactive knowledge graph showing case entities and relationships"
+          role="img"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -523,7 +540,7 @@ export default function KnowledgeGraph() {
           <div className="absolute top-4 right-4 w-72 glass-card backdrop-blur-xl overflow-hidden animate-fade-in">
             <div className="px-4 py-3 border-b border-white/[0.04] flex items-center justify-between">
               <span className="text-xs font-medium">Node Detail</span>
-              <button onClick={() => setSelected(null)} className="p-1 rounded-lg hover:bg-white/5 transition-colors">
+              <button onClick={() => setSelected(null)} className="p-1 rounded-lg hover:bg-white/5 transition-colors" aria-label="Close node detail">
                 <span className="material-symbols-outlined text-[14px] text-gray-400">close</span>
               </button>
             </div>

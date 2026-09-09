@@ -31,9 +31,9 @@ const SECTIONS = [
     { label: 'Total Victims', value: f.victim_count },
     { label: 'Male', value: f.male_victims },
     { label: 'Female', value: f.female_victims },
-    { label: 'Boy', value: f.boy_victims },
-    { label: 'Girl', value: f.girl_victims },
-    { label: 'Age 0', value: f.age_0_victims },
+    { label: 'Male Child Victims', value: f.boy_victims },
+    { label: 'Female Child Victims', value: f.girl_victims },
+    { label: 'Infant Victims (Age 0)', value: f.age_0_victims },
   ]},
   { title: 'Accused Information', icon: 'group', fields: (f: ReturnType<typeof useCaseData>['fir']) => [
     { label: 'Total Accused', value: f.accused_count },
@@ -68,11 +68,11 @@ export default function FirDetail() {
       <>
       <header className="border-b px-6 py-4 sticky top-0 lg:top-0 z-30 backdrop-blur-xl" style={{ background: 'color-mix(in srgb, var(--bg-primary) 85%, transparent)', borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-          <Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+          <Link to="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Dashboard</Link>
           <span className="text-gray-600">/</span>
-          <Link to={`/cases/${caseData.id}`} className="hover:text-white transition-colors">Case</Link>
+          <Link to={`/cases/${caseData.id}`} className="hover:text-[var(--text-primary)] transition-colors">Case</Link>
           <span className="text-gray-600">/</span>
-          <span className="text-white">FIR Details</span>
+          <span className="text-[var(--text-primary)]">FIR Details</span>
         </div>
         <h1 className="text-2xl font-extrabold tracking-tight">FIR Detail — {fir.fir_number}</h1>
       </header>

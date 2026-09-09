@@ -67,7 +67,8 @@ export function calculateRiskScore(fir: FIR): RiskAssessment {
   score = Math.min(score, 100);
 
   let risk_level: RiskAssessment['risk_level'] = 'LOW';
-  if (score >= 70) risk_level = 'HIGH';
+  if (score >= 85) risk_level = 'CRITICAL';
+  else if (score >= 70) risk_level = 'HIGH';
   else if (score >= 40) risk_level = 'MEDIUM';
 
   return {

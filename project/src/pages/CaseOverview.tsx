@@ -71,7 +71,7 @@ export default function CaseOverview() {
                 <svg viewBox="0 0 80 80" className="w-20 h-20">
                   <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6"/>
                   <circle cx="40" cy="40" r="34" fill="none"
-                    stroke={risk?.risk_level === 'HIGH' ? '#ef4444' : risk?.risk_level === 'MEDIUM' ? '#eab308' : '#22c55e'}
+                    stroke={risk?.risk_level === 'CRITICAL' ? '#dc2626' : risk?.risk_level === 'HIGH' ? '#ef4444' : risk?.risk_level === 'MEDIUM' ? '#eab308' : '#22c55e'}
                     strokeWidth="6" strokeLinecap="round"
                     strokeDasharray={`${(risk?.risk_score || 0) * 2.14} 214`}
                     transform="rotate(-90 40 40)"
@@ -83,7 +83,7 @@ export default function CaseOverview() {
                 </div>
               </div>
               <div>
-                <div className={`text-lg font-bold ${risk?.risk_level === 'HIGH' ? 'text-red-400' : risk?.risk_level === 'MEDIUM' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                <div className={`text-lg font-bold ${risk?.risk_level === 'CRITICAL' ? 'text-red-500' : risk?.risk_level === 'HIGH' ? 'text-red-400' : risk?.risk_level === 'MEDIUM' ? 'text-amber-400' : 'text-emerald-400'}`}>
                   {risk?.risk_level || 'N/A'}
                 </div>
                 <p className="text-[10px] text-gray-500 mt-0.5">Investigative<br/>prioritization only</p>

@@ -9,20 +9,21 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
-    const result = await signIn(email, password);
-    if (result.error) {
-      setError(result.error);
+    try {
+      const result = await signIn(email, password);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      navigate('/dashboard');
+    } finally {
       setSubmitting(false);
-      return;
     }
-    setSubmitting(false);
-    navigate('/dashboard');
   };
 
   const handleDemo = () => {
@@ -78,15 +79,14 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <label className="block text-xs text-gray-300 mb-1.5 uppercase tracking-[2px] font-bold">Email</label>
-              <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'email' ? 'ring-1 ring-[#4cd7f6]/30' : ''}`}>
+              <label htmlFor="login-email" className="block text-xs text-gray-300 mb-1.5 uppercase tracking-[2px] font-bold">Email</label>
+              <div className="relative rounded-xl transition-all duration-300 focus-within:ring-1 focus-within:ring-[#4cd7f6]/30">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-gray-500">mail</span>
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField(null)}
                   className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-[#4cd7f6]/40 transition-all placeholder:text-gray-600"
                   placeholder="officer@netra.gov.in"
                   required
@@ -94,15 +94,14 @@ export default function Login() {
               </div>
             </div>
             <div className="relative">
-              <label className="block text-xs text-gray-300 mb-1.5 uppercase tracking-[2px] font-bold">Password</label>
-              <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'password' ? 'ring-1 ring-[#4cd7f6]/30' : ''}`}>
+              <label htmlFor="login-password" className="block text-xs text-gray-300 mb-1.5 uppercase tracking-[2px] font-bold">Password</label>
+              <div className="relative rounded-xl transition-all duration-300 focus-within:ring-1 focus-within:ring-[#4cd7f6]/30">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-gray-500">lock</span>
                 <input
+                  id="login-password"
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField(null)}
                   className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-[#4cd7f6]/40 transition-all placeholder:text-gray-600"
                   placeholder="Enter your password"
                   required

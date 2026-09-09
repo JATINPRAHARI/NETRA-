@@ -55,7 +55,7 @@ export default function Analytics() {
                   <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="8" />
                   <circle
                     cx="60" cy="60" r="52" fill="none"
-                    stroke={risk?.risk_level === 'HIGH' ? '#ef4444' : risk?.risk_level === 'MEDIUM' ? '#eab308' : '#22c55e'}
+                    stroke={risk?.risk_level === 'CRITICAL' ? '#dc2626' : risk?.risk_level === 'HIGH' ? '#ef4444' : risk?.risk_level === 'MEDIUM' ? '#eab308' : '#22c55e'}
                     strokeWidth="8" strokeLinecap="round"
                     strokeDasharray={`${(risk?.risk_score || 0) * 3.27} 327`}
                     transform="rotate(-90 60 60)"
@@ -64,7 +64,7 @@ export default function Analytics() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-4xl font-bold">{risk?.risk_score || 0}</span>
                   <span className="text-[10px] text-gray-500">/ 100</span>
-                  <span className={`text-sm font-semibold mt-1 ${risk?.risk_level === 'HIGH' ? 'text-red-400' : risk?.risk_level === 'MEDIUM' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                  <span className={`text-sm font-semibold mt-1 ${risk?.risk_level === 'CRITICAL' ? 'text-red-500' : risk?.risk_level === 'HIGH' ? 'text-red-400' : risk?.risk_level === 'MEDIUM' ? 'text-amber-400' : 'text-emerald-400'}`}>
                     {risk?.risk_level || 'N/A'}
                   </span>
                 </div>

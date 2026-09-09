@@ -36,7 +36,10 @@ export function useCaseData(): CaseData {
   });
 
   useEffect(() => {
-    if (!caseId) return;
+    if (!caseId) {
+      setData(prev => ({ ...prev, loading: false }));
+      return;
+    }
     let cancelled = false;
 
     async function load() {

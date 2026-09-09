@@ -25,36 +25,47 @@ export default function Evidence() {
     if (!file) return;
     setUploading(true);
 
-    const hash = await computeFileHash(file);
-    const record: EvidenceRecord = {
-      id: `ev-${Date.now()}`,
-      case_id: caseData.id,
-      fir_id: null,
-      file_name: file.name,
-      file_type: file.type,
-      file_size: file.size,
-      file_path: null,
-      sha256_hash: hash,
-      uploaded_by: user?.id || 'demo-user',
-      uploaded_at: new Date().toISOString(),
-      integrity_status: 'PENDING',
-    };
+    try {
+      const hash = await computeFileHash(file);
+      const record: EvidenceRecord = {
+        id: `ev-${Date.now()}`,
+        case_id: caseData.id,
+        fir_id: null,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        file_path: null,
+        sha256_hash: hash,
+        uploaded_by: user?.id || 'demo-user',
+        uploaded_at: new Date().toISOString(),
+        integrity_status: 'PENDING',
+      };
 
-    await addEvidenceDb(record);
-    const updated = await getEvidence(caseData.id);
-    setEvidenceList(updated);
-    setUploading(false);
-    if (fileRef.current) fileRef.current.value = '';
+      await addEvidenceDb(record);
+      const updated = await getEvidence(caseData.id);
+      setEvidenceList(updated);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
   };
 
   const handleVerify = async (ev: EvidenceRecord) => {
     setVerifying(ev.id);
     setVerifyResult(prev => ({ ...prev, [ev.id]: null }));
-    const verified = await verifyEvidenceDb(ev.id);
-    setVerifyResult(prev => ({ ...prev, [ev.id]: verified?.integrity_status === 'VERIFIED' }));
-    setVerifying(null);
-    const updated = await getEvidence(caseData.id);
-    setEvidenceList(updated);
+    try {
+      const verified = await verifyEvidenceDb(ev.id);
+      setVerifyResult(prev => ({ ...prev, [ev.id]: verified?.integrity_status === 'VERIFIED' }));
+      const updated = await getEvidence(caseData.id);
+      setEvidenceList(updated);
+    } catch (err) {
+      console.error('Verification failed:', err);
+      setVerifyResult(prev => ({ ...prev, [ev.id]: false }));
+    } finally {
+      setVerifying(null);
+    }
   };
 
   return (
