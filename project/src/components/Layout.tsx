@@ -6,6 +6,7 @@ import { useTheme } from '@/lib/theme';
 const NAV = [
   { path: '', icon: 'folder', label: 'Overview' },
   { path: '/fir', icon: 'description', label: 'FIR Details' },
+  { path: '/fir/register', icon: 'add_circle', label: 'Register FIR' },
   { path: '/entities', icon: 'hub', label: 'Entities' },
   { path: '/graph', icon: 'lan', label: 'Knowledge Graph' },
   { path: '/analytics', icon: 'analytics', label: 'Analytics' },

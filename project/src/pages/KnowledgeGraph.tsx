@@ -22,6 +22,7 @@ type Edge = { from: Node; to: Node; rel: Relationship };
 export default function KnowledgeGraph() {
   const { caseData, entities, relationships, loading } = useCaseData();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<Entity | null>(null);
   const nodesRef = useRef<Node[]>([]);
   const edgesRef = useRef<Edge[]>([]);
@@ -34,12 +35,26 @@ export default function KnowledgeGraph() {
   const lastTouchRef = useRef<{ x: number; y: number; dist: number } | null>(null);
   const velocityRef = useRef<{ vx: number; vy: number }>({ vx: 0, vy: 0 });
   const prevDragRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const sizeRef = useRef({ w: 0, h: 0 });
+
+  const syncCanvasSize = useCallback(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    const dpr = devicePixelRatio;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    sizeRef.current = { w, h };
+  }, []);
 
   const initGraph = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    syncCanvasSize();
+    const { w, h } = sizeRef.current;
+    if (w === 0 || h === 0) return;
     const cx = w / 2, cy = h / 2;
 
     const nodes: Node[] = entities.map((e, i) => {
@@ -63,13 +78,11 @@ export default function KnowledgeGraph() {
 
     nodesRef.current = nodes;
     edgesRef.current = edges;
-  }, [entities, relationships]);
+  }, [entities, relationships, syncCanvasSize]);
 
   const applyForces = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const { w, h } = sizeRef.current;
+    if (w === 0) return;
     const cx = w / 2, cy = h / 2;
     const nodes = nodesRef.current;
 
@@ -94,8 +107,7 @@ export default function KnowledgeGraph() {
         const dy = a.y - b.y;
         let dist = Math.hypot(dx, dy);
         if (dist < 1) dist = 1;
-        const minDist = REPULSION_DISTANCE;
-        if (dist < minDist) {
+        if (dist < REPULSION_DISTANCE) {
           const force = FORCE_STRENGTH / (dist * dist);
           const fx = (dx / dist) * force;
           const fy = (dy / dist) * force;
@@ -136,12 +148,10 @@ export default function KnowledgeGraph() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = canvas.clientWidth * devicePixelRatio;
-    canvas.height = canvas.clientHeight * devicePixelRatio;
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const dpr = devicePixelRatio;
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
     ctx.save();
@@ -258,6 +268,12 @@ export default function KnowledgeGraph() {
     return () => cancelAnimationFrame(forceFrame);
   }, [applyForces]);
 
+  useEffect(() => {
+    const onResize = () => syncCanvasSize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [syncCanvasSize]);
+
   const getNodeAt = (x: number, y: number): Node | null => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -336,10 +352,7 @@ export default function KnowledgeGraph() {
   const handleDoubleClick = (e: React.MouseEvent) => {
     const node = getNodeAt(e.clientX, e.clientY);
     if (node) {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
+      const { w, h } = sizeRef.current;
       const targetZoom = 2;
       panRef.current.x = w / 2 - node.x * targetZoom;
       panRef.current.y = h / 2 - node.y * targetZoom;
@@ -501,7 +514,7 @@ export default function KnowledgeGraph() {
         </div>
       </header>
 
-      <div className="relative" style={{ height: 'calc(100vh - 52px)' }}>
+      <div ref={containerRef} className="relative w-full" style={{ height: 'calc(100vh - 52px)' }}>
         <canvas
           ref={canvasRef}
           className="w-full h-full cursor-grab active:cursor-grabbing"

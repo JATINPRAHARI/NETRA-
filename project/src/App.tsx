@@ -11,6 +11,7 @@ import Analytics from '@/pages/Analytics';
 import Evidence from '@/pages/Evidence';
 import AuditTrail from '@/pages/AuditTrail';
 import Report from '@/pages/Report';
+import FirRegistration from '@/pages/FirRegistration';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ function AppRoutes() {
       <Route path="/cases" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/cases/:caseId" element={<ProtectedRoute><CaseOverview /></ProtectedRoute>} />
       <Route path="/cases/:caseId/fir" element={<ProtectedRoute><FirDetail /></ProtectedRoute>} />
+      <Route path="/cases/:caseId/fir/register" element={<ProtectedRoute><FirRegistration /></ProtectedRoute>} />
       <Route path="/cases/:caseId/graph" element={<ProtectedRoute><KnowledgeGraph /></ProtectedRoute>} />
       <Route path="/cases/:caseId/evidence" element={<ProtectedRoute><Evidence /></ProtectedRoute>} />
       <Route path="/cases/:caseId/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
