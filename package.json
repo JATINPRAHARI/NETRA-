@@ -1,0 +1,7 @@
+{
+  "name": "netra",
+  "private": true,
+  "scripts": {
+    "build": "cd project && npm install --legacy-peer-deps && npm run build"
+  }
+}
