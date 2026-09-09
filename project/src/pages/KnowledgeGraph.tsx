@@ -267,12 +267,21 @@ export default function KnowledgeGraph() {
 
   useEffect(() => {
     if (loading) return;
-    const id = requestAnimationFrame(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    syncCanvasSize();
+    initGraph();
+
+    const ro = new ResizeObserver(() => {
       syncCanvasSize();
-      initGraph();
+      if (sizeRef.current.w > 0 && sizeRef.current.h > 0) {
+        initGraph();
+      }
     });
-    return () => cancelAnimationFrame(id);
-  }, [loading, syncCanvasSize, initGraph]);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [loading, initGraph, syncCanvasSize]);
 
   useEffect(() => {
     const onResize = () => { syncCanvasSize(); initGraph(); };
