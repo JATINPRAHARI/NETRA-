@@ -4,6 +4,7 @@ import { useAuth, demoStore } from '@/lib/auth';
 import { getCases, getFIRsByCase, getEntities, getRelationships, getEvidence } from '@/lib/data';
 import type { Case, FIR, Entity, Relationship, EvidenceRecord } from '@/lib/types';
 import Layout from '@/components/Layout';
+import MiniGraph from '@/components/MiniGraph';
 
 function AnimatedCounter({ value, duration = 800 }: { value: number; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -189,52 +190,9 @@ export default function Dashboard() {
               <Link to={`/cases/${caseData.id}/graph`} className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Open full graph →</Link>
             </div>
           </div>
-          <div className="p-6 flex items-center justify-center" style={{ height: 320, background: 'radial-gradient(circle at 50% 50%, rgba(76, 215, 246, 0.03), transparent 70%)' }}>
-            {/* Mini graph visualization - simplified static version */}
-            <svg viewBox="0 0 600 280" className="w-full max-w-2xl opacity-80">
-              {/* Edges */}
-              <line x1="300" y1="100" x2="200" y2="140" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="300" y1="100" x2="400" y2="80" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="300" y1="100" x2="350" y2="180" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="200" y1="140" x2="150" y2="200" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="400" y1="80" x2="450" y2="140" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="350" y1="180" x2="280" y2="220" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="350" y1="180" x2="420" y2="230" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="200" y1="140" x2="280" y2="220" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="450" y1="140" x2="420" y2="230" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              <line x1="150" y1="200" x2="280" y2="220" stroke="rgba(76,215,246,0.15)" strokeWidth="1" />
-              {/* Nodes */}
-              <circle cx="300" cy="100" r="12" fill="#0d141d" stroke="#eab308" strokeWidth="1.5" />
-              <circle cx="300" cy="100" r="4" fill="#eab308" />
-              <text x="300" y="120" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Rahul Verma</text>
-              <circle cx="200" cy="140" r="10" fill="#0d141d" stroke="#4cd7f6" strokeWidth="1.5" />
-              <circle cx="200" cy="140" r="3" fill="#4cd7f6" />
-              <text x="200" y="158" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Sameer Khan</text>
-              <circle cx="400" cy="80" r="10" fill="#0d141d" stroke="#4cd7f6" strokeWidth="1.5" />
-              <circle cx="400" cy="80" r="3" fill="#4cd7f6" />
-              <text x="400" y="72" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Karan Malik</text>
-              <circle cx="350" cy="180" r="10" fill="#0d141d" stroke="#4cd7f6" strokeWidth="1.5" />
-              <circle cx="350" cy="180" r="3" fill="#4cd7f6" />
-              <text x="350" y="198" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Mohit Sharma</text>
-              <circle cx="150" cy="200" r="10" fill="#0d141d" stroke="#22c55e" strokeWidth="1.5" />
-              <circle cx="150" cy="200" r="3" fill="#22c55e" />
-              <text x="150" y="218" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Connaught Place</text>
-              <circle cx="450" cy="140" r="10" fill="#0d141d" stroke="#4cd7f6" strokeWidth="1.5" />
-              <circle cx="450" cy="140" r="3" fill="#4cd7f6" />
-              <text x="450" y="158" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Anil Yadav</text>
-              <circle cx="280" cy="220" r="10" fill="#0d141d" stroke="#22c55e" strokeWidth="1.5" />
-              <circle cx="280" cy="220" r="3" fill="#22c55e" />
-              <text x="280" y="238" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Sector 18 Warehouse</text>
-              <circle cx="420" cy="230" r="10" fill="#0d141d" stroke="#4cd7f6" strokeWidth="1.5" />
-              <circle cx="420" cy="230" r="3" fill="#4cd7f6" />
-              <text x="420" y="248" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Deepak Rana</text>
-              <circle cx="220" cy="60" r="10" fill="#0d141d" stroke="#a855f7" strokeWidth="1.5" />
-              <circle cx="220" cy="60" r="3" fill="#a855f7" />
-              <text x="220" y="52" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">DL 3C AK 4471</text>
-              <circle cx="380" cy="30" r="10" fill="#0d141d" stroke="#22c55e" strokeWidth="1.5" />
-              <circle cx="380" cy="30" r="3" fill="#22c55e" />
-              <text x="380" y="22" textAnchor="middle" fill="#e2e8f0" fontSize="8" fontFamily="Inter">Delhi Railway Station</text>
-            </svg>
+          <MiniGraph entities={entities} relationships={relationships} height={320} />
+          <div className="px-5 py-2 text-[9px] text-gray-500 border-t border-white/[0.04]">
+            Drag nodes to move • Scroll to zoom • Drag background to pan
           </div>
         </div>
 
