@@ -6,12 +6,21 @@ import { useTheme } from '@/lib/theme';
 const NAV = [
   { path: '', icon: 'folder', label: 'Overview' },
   { path: '/fir', icon: 'description', label: 'FIR Details' },
+  { path: '/fir/register', icon: 'add_circle', label: 'Register FIR' },
   { path: '/entities', icon: 'hub', label: 'Entities' },
   { path: '/graph', icon: 'lan', label: 'Knowledge Graph' },
+  { path: '/full-graph', icon: 'account_tree', label: 'Full Graph' },
+  { path: '/upload', icon: 'upload_file', label: 'Upload & Ingestion' },
+  { path: '/resolution', icon: 'merge', label: 'Entity Resolution' },
+  { path: '/locations', icon: 'location_on', label: 'Locations' },
+  { path: '/communities', icon: 'group_work', label: 'Communities' },
   { path: '/analytics', icon: 'analytics', label: 'Analytics' },
+  { path: '/alerts', icon: 'warning', label: 'Alerts' },
+  { path: '/ai', icon: 'psychology', label: 'Ask AI' },
   { path: '/evidence', icon: 'folder_shared', label: 'Evidence' },
+  { path: '/reports', icon: 'summarize', label: 'Investigation Reports' },
   { path: '/audit', icon: 'history', label: 'Audit Trail' },
-  { path: '/report', icon: 'summarize', label: 'Report' },
+  { path: '/admin', icon: 'admin_panel_settings', label: 'Admin & Roles' },
 ];
 
 export default function Layout({ caseId, children }: { caseId: string; children: React.ReactNode }) {
@@ -25,7 +34,18 @@ export default function Layout({ caseId, children }: { caseId: string; children:
   const isActive = (navPath: string) => {
     const fullPath = `${basePath}${navPath}`;
     if (navPath === '') return location.pathname === basePath;
-    return location.pathname.startsWith(fullPath);
+    const path = location.pathname;
+    if (path === fullPath) return true;
+    if (path.startsWith(fullPath + '/')) {
+      const childPrefix = fullPath + '/';
+      const hasMoreSpecificMatch = NAV.some(n => {
+        if (n.path === navPath) return false;
+        const childFull = `${basePath}${n.path}`;
+        return childFull.startsWith(childPrefix) && (path === childFull || path.startsWith(childFull + '/'));
+      });
+      return !hasMoreSpecificMatch;
+    }
+    return false;
   };
 
   return (
@@ -33,7 +53,7 @@ export default function Layout({ caseId, children }: { caseId: string; children:
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b px-4 py-3 flex items-center justify-between" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }}>
+          <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} aria-label="Open navigation menu">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <div className="flex items-center gap-2">
@@ -73,26 +93,36 @@ export default function Layout({ caseId, children }: { caseId: string; children:
                 <p className="text-[9px] tracking-[3px] uppercase -mt-0.5" style={{ color: 'color-mix(in srgb, var(--accent) 60%, transparent)' }}>Intelligence Core</p>
               </div>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }} aria-label="Close navigation menu">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto custom-scrollbar">
           <Link
             to="/dashboard"
             onClick={() => setSidebarOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group"
             style={{ color: 'var(--text-secondary)' }}
           >
             <span className="material-symbols-outlined text-[18px] transition-colors group-hover:text-[var(--accent)]">dashboard</span>
             Dashboard
           </Link>
 
-          <div className="pt-5 pb-2 px-3">
-            <span className="text-[10px] uppercase tracking-[2px] font-bold" style={{ color: 'var(--text-muted)' }}>Case Navigation</span>
+          <Link
+            to="/cases"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group"
+            style={{ color: location.pathname === '/cases' ? 'var(--accent)' : 'var(--text-secondary)', background: location.pathname === '/cases' ? 'var(--accent-muted)' : 'transparent' }}
+          >
+            <span className="material-symbols-outlined text-[18px]">cases</span>
+            Case Management
+          </Link>
+
+          <div className="pt-3 pb-1.5 px-3">
+            <span className="text-[9px] uppercase tracking-[2px] font-bold" style={{ color: 'var(--text-muted)' }}>Case Navigation</span>
           </div>
 
           {NAV.map(n => {
@@ -102,7 +132,7 @@ export default function Layout({ caseId, children }: { caseId: string; children:
                 key={n.path}
                 to={`${basePath}${n.path}`}
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group relative"
                 style={{
                   background: active ? 'var(--accent-muted)' : 'transparent',
                   color: active ? 'var(--accent)' : 'var(--text-secondary)',
@@ -119,12 +149,13 @@ export default function Layout({ caseId, children }: { caseId: string; children:
         </nav>
 
         {/* Bottom Section */}
-        <div className="p-3 border-t space-y-2" style={{ borderColor: 'var(--border)' }}>
+        <div className="p-3 border-t space-y-1" style={{ borderColor: 'var(--border)' }}>
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group"
             style={{ color: 'var(--text-secondary)' }}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style={{ background: 'var(--bg-card)' }}>
               <span className="material-symbols-outlined text-[18px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
@@ -134,7 +165,8 @@ export default function Layout({ caseId, children }: { caseId: string; children:
 
           {/* Settings */}
           <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group"
+            onClick={() => alert('Settings panel coming soon.')}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group"
             style={{ color: 'var(--text-secondary)' }}
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style={{ background: 'var(--bg-card)' }}>

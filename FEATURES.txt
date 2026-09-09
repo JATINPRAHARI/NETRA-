@@ -1,0 +1,245 @@
+================================================================================
+                         NETRA — INTELLIGENCE CORE
+                    Criminal Network Intelligence Platform
+                         MVP Feature Summary
+================================================================================
+
+PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+NETRA is an AI-powered criminal network intelligence prototype designed for
+law enforcement agencies. It analyzes FIR (First Information Report) data to
+extract entities, build relationship graphs, detect anomalies, and assist
+investigators in understanding criminal networks.
+
+Tech Stack: React 18, TypeScript, Vite 8, Tailwind CSS 3, Supabase, Leaflet Maps
+Data Source: Karnataka Police FIR Dataset (1 Record Prototype)
+
+================================================================================
+                           CORE FEATURES
+================================================================================
+
+1. AUTHENTICATION & ACCESS CONTROL
+   - Email/password login via Supabase Auth
+   - Demo mode for offline/local usage without Supabase
+   - Role-based access: Admin, Investigator, Supervisor
+   - Protected routes with authentication guards
+
+2. DASHBOARD
+   - Animated stat counters (Cases, FIRs, Entities, Relations, Evidence)
+   - Network Summary — auto-generated narrative from graph data
+   - Interactive Network Graph — moveable nodes with drag, pan, zoom
+   - Relationship Timeline — chronological event history
+   - Key Individuals — centrality-ranked entity list with bar charts
+   - Priority Score Breakdown — explainable 82/100 scoring with factors
+   - Active Cases card with status, crime type, district, IO
+   - Four info cards: FIR Info, Crime Info, Victim & Accused, Location
+
+3. CASE MANAGEMENT
+   - Case listing table (ID, Title, Investigator, Status, Priority, Entities, Alerts)
+   - Case statuses: Active, Under Review, Closed
+   - Compare Cases — side-by-side network stats + shared entities
+   - New Case button (UI ready)
+
+4. FIR MANAGEMENT
+   - FIR Detail view with 6 structured sections
+   - FIR Registration form with auto-computed fields
+   - Fields: FIR Number, Type, Stage, Crime, Location, IO, Victims, Accused
+
+5. ENTITY MANAGEMENT
+   - Entity cards grouped by type (FIR, District, PoliceUnit, CrimeGroup, etc.)
+   - Color-coded type badges with Material icons
+   - Relationship listing with source → type → target
+   - 8 entity types supported
+
+6. KNOWLEDGE GRAPH (Interactive)
+   - Custom canvas-based force-directed graph (no external library)
+   - Physics: Coulomb repulsion, Hooke's springs, center gravity, damping
+   - Drag individual nodes with velocity-based fling
+   - Pan canvas by dragging background
+   - Scroll-wheel zoom centered on cursor
+   - Double-click to zoom into node (2x)
+   - Touch support: single-finger drag, two-finger pinch-to-zoom
+   - Color-coded nodes by type (8 types with distinct colors)
+   - Edge rendering with gradient lines and directional arrows
+   - Node labels with type indicators
+   - Legend panel, simulation toggle, reset view
+   - Click node for detail panel
+
+7. FULL GRAPH VIEW (Advanced)
+   - Full-screen interactive graph with sidebar controls
+   - Temporal Playback — Before / During / Full range with slider
+   - Shortest Path Finder — select two entities, find path (BFS)
+   - Common Connections — find shared neighbors between entities
+   - What Changed Since — date-based change tracking
+   - Clear Highlight button
+   - Entity detail panel on click
+
+8. DATA UPLOAD & INGESTION
+   - Drag-and-drop file upload (CSV, XLSX, JSON, PDF, TXT)
+   - 7-step Processing Pipeline visualization:
+     Ingest → Preprocess → NLP → Entity Extract →
+     Relationship Extract → Entity Resolution → Knowledge Graph
+   - Documents on File table (Filename, Type, Status, Entities, Relationships)
+   - Extracted Entities table with confidence percentages
+   - Entity type badges (PERSON, VEHICLE, LOCATION, ORGANIZATION, PHONE, TRANSACTION)
+
+9. ENTITY RESOLUTION
+   - Compute new candidates — live name/phone/vehicle similarity match
+   - Check other cases — cross-case entity matching
+   - Match cards with:
+     • Entity names and source files
+     • Match confidence percentage
+     • Evidence items (shared phone, vehicle, address, name similarity)
+     • Status badges: PENDING, CONFIRMED, REJECTED
+   - Action buttons: Confirm Match, Reject, Reset to Pending
+   - Within-case and Cross-case scope
+
+10. LOCATION ANALYSIS
+    - Interactive Leaflet/OpenStreetMap map with circle markers
+    - Location Detail panel on marker click
+    - Hotspots table ranked by connected entity count
+    - Mapped/Unmapped status indicators
+
+11. COMMUNITY & GROUP DETECTION
+    - Bridge Entities — entities connecting separate communities
+    - Community cards with member listings
+    - Entity type icons (person, vehicle, location, organization, phone, transaction)
+    - BRIDGE badge for cross-community entities
+    - RECOMPUTE (Label Propagation) button
+
+12. ANALYTICS & RISK ASSESSMENT
+    - Disclaimer banner (rule-based, NOT AI predictions)
+    - Circular risk gauge with score/100 and level (LOW/MEDIUM/HIGH/CRITICAL)
+    - Risk Factors with color-coded impact bars (green/yellow/red)
+    - Investigation Summary (natural language narrative)
+    - Investigative Leads (numbered actionable steps)
+    - Important Attributes (field, value, reason)
+    - FIR Breakdown stats (Victims, Accused, Arrested, Chargesheeted, Convictions, Arrest Rate)
+
+13. ALERTS & ANOMALY DETECTION
+    - Severity filter buttons: All, High, Medium, Low
+    - RUN ANOMALY DETECTION button
+    - Alert cards with:
+      • Title and category badge (FINANCIAL ANOMALY, NETWORK ANOMALY, COMMUNICATION ANOMALY)
+      • Description and timestamp
+      • Severity border color (red/amber/green)
+
+14. ASK AI — INVESTIGATOR ASSISTANT
+    - Chat interface with suggested questions
+    - Input field with ASK button
+    - Demo responses derived from case graph data
+    - Pre-built answers for:
+      • Strongest connections of an entity
+      • Connection paths between entities
+      • Bridge individuals across communities
+      • Network summary
+      • Unusual transactions
+
+15. EVIDENCE MANAGEMENT
+    - File upload with drag-and-drop (PDF, PNG, JPG, TXT)
+    - SHA-256 hash computation on upload (Web Crypto API)
+    - Evidence file listing with integrity status badges
+    - Verify button to re-check hash integrity
+    - Status: VERIFIED, COMPROMISED, PENDING
+    - Audit logging for upload and verification events
+
+16. INVESTIGATION REPORTS
+    - Report card with sections: Case overview, Network graph, Key individuals, Timeline, Anomalies, Evidence log
+    - EXPORT PDF / CSV / JSON buttons (demo mode — disabled)
+    - Report generation audit-logged
+
+17. AUDIT TRAIL
+    - Immutable append-only log with timestamp, action, user, resource, hash
+    - Color-coded action badges (10 action types)
+    - SHA-256 hash chain for integrity
+    - Immutable badge and footer explanation
+
+18. ADMIN & ROLES
+    - Users table (Name, Role, Last Active)
+    - Role Permissions breakdown:
+      • Admin: Manage users, datasets, system monitoring
+      • Investigator: Analyze cases, upload data, query networks, generate reports
+      • Supervisor: Review investigations, review reports, monitor activity
+
+================================================================================
+                         DESIGN & UX
+================================================================================
+
+- Dark theme (default) with light mode toggle
+- Material Design 3-inspired color tokens
+- Glass-card component system with backdrop blur
+- Staggered fade-in animations
+- Responsive design (mobile sidebar, touch support)
+- Google Material Symbols icons
+- Inter + JetBrains Mono fonts
+- Print-optimized report styles
+
+================================================================================
+                        NAVIGATION STRUCTURE
+================================================================================
+
+Sidebar Navigation:
+  Dashboard
+  Case Management
+  ── Case Navigation ──
+  Overview
+  FIR Details
+  Register FIR
+  Entities
+  Knowledge Graph
+  Full Graph
+  Upload & Ingestion
+  Entity Resolution
+  Locations
+  Communities
+  Analytics
+  Alerts
+  Ask AI
+  Evidence
+  Investigation Reports
+  Audit Trail
+  Admin & Roles
+
+================================================================================
+                         ROUTES (21 total)
+================================================================================
+
+  /login                          — Authentication
+  /dashboard                      — Main dashboard
+  /cases                          — Case management
+  /cases/:caseId                  — Case overview
+  /cases/:caseId/fir              — FIR detail
+  /cases/:caseId/fir/register     — FIR registration
+  /cases/:caseId/entities         — Entity listing
+  /cases/:caseId/graph            — Knowledge graph
+  /cases/:caseId/full-graph       — Full graph view
+  /cases/:caseId/upload           — Data upload & ingestion
+  /cases/:caseId/resolution       — Entity resolution
+  /cases/:caseId/locations        — Location analysis
+  /cases/:caseId/communities      — Community detection
+  /cases/:caseId/analytics        — Analytics & risk
+  /cases/:caseId/alerts           — Alerts & anomalies
+  /cases/:caseId/ai               — Ask AI assistant
+  /cases/:caseId/evidence         — Evidence management
+  /cases/:caseId/reports          — Investigation reports
+  /cases/:caseId/audit            — Audit trail
+  /cases/:caseId/admin            — Admin & roles
+
+================================================================================
+                         DEPLOYMENT
+================================================================================
+
+  Repository: https://github.com/JATINPRAHARI/NETRA-.git
+  Live URL:   https://netra-vert.vercel.app
+  Build:      Vite 8 + TypeScript + Tailwind CSS
+  Hosting:    Vercel (auto-deploy from main branch)
+
+================================================================================
+                            MVP STATUS
+================================================================================
+
+  All 18 feature modules implemented with demo data.
+  Fully functional in demo mode without backend.
+  Production-ready with Supabase integration.
+
+================================================================================

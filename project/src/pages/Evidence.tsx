@@ -25,36 +25,47 @@ export default function Evidence() {
     if (!file) return;
     setUploading(true);
 
-    const hash = await computeFileHash(file);
-    const record: EvidenceRecord = {
-      id: `ev-${Date.now()}`,
-      case_id: caseData.id,
-      fir_id: null,
-      file_name: file.name,
-      file_type: file.type,
-      file_size: file.size,
-      file_path: null,
-      sha256_hash: hash,
-      uploaded_by: user?.id || 'demo-user',
-      uploaded_at: new Date().toISOString(),
-      integrity_status: 'PENDING',
-    };
+    try {
+      const hash = await computeFileHash(file);
+      const record: EvidenceRecord = {
+        id: `ev-${Date.now()}`,
+        case_id: caseData.id,
+        fir_id: null,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        file_path: null,
+        sha256_hash: hash,
+        uploaded_by: user?.id || 'demo-user',
+        uploaded_at: new Date().toISOString(),
+        integrity_status: 'PENDING',
+      };
 
-    await addEvidenceDb(record);
-    const updated = await getEvidence(caseData.id);
-    setEvidenceList(updated);
-    setUploading(false);
-    if (fileRef.current) fileRef.current.value = '';
+      await addEvidenceDb(record);
+      const updated = await getEvidence(caseData.id);
+      setEvidenceList(updated);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
   };
 
   const handleVerify = async (ev: EvidenceRecord) => {
     setVerifying(ev.id);
     setVerifyResult(prev => ({ ...prev, [ev.id]: null }));
-    const verified = await verifyEvidenceDb(ev.id);
-    setVerifyResult(prev => ({ ...prev, [ev.id]: verified?.integrity_status === 'VERIFIED' }));
-    setVerifying(null);
-    const updated = await getEvidence(caseData.id);
-    setEvidenceList(updated);
+    try {
+      const verified = await verifyEvidenceDb(ev.id);
+      setVerifyResult(prev => ({ ...prev, [ev.id]: verified?.integrity_status === 'VERIFIED' }));
+      const updated = await getEvidence(caseData.id);
+      setEvidenceList(updated);
+    } catch (err) {
+      console.error('Verification failed:', err);
+      setVerifyResult(prev => ({ ...prev, [ev.id]: false }));
+    } finally {
+      setVerifying(null);
+    }
   };
 
   return (
@@ -108,7 +119,7 @@ export default function Evidence() {
             </p>
             <p className="text-[10px] text-gray-500 mb-4">Accepted: PDF, PNG, JPG, TXT</p>
             {!uploading && (
-              <button className="px-5 py-2 bg-[#4cd7f6]/10 hover:bg-[#4cd7f6]/20 text-[#4cd7f6] font-medium text-sm rounded-xl transition-all duration-200 border border-[#4cd7f6]/20">
+              <button type="button" onClick={() => fileRef.current?.click()} className="px-5 py-2 bg-[#4cd7f6]/10 hover:bg-[#4cd7f6]/20 text-[#4cd7f6] font-medium text-sm rounded-xl transition-all duration-200 border border-[#4cd7f6]/20">
                 Select File
               </button>
             )}

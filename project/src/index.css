@@ -107,6 +107,9 @@ html.light .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0
 .stagger-item:nth-child(6) { animation-delay: 0.3s; }
 .stagger-item:nth-child(7) { animation-delay: 0.35s; }
 .stagger-item:nth-child(8) { animation-delay: 0.4s; }
+.stagger-item:nth-child(9) { animation-delay: 0.45s; }
+.stagger-item:nth-child(10) { animation-delay: 0.5s; }
+.stagger-item:nth-child(n+11) { animation-delay: 0.55s; }
 
 /* Glass card */
 @layer components {

@@ -42,9 +42,9 @@ export async function getFIRsByCase(caseId: string): Promise<FIR[]> {
 }
 
 export async function getFIRByNumber(firNumber: string): Promise<FIR | null> {
-  if (!isSupabaseConfigured) return DEMO_FIR;
+  if (!isSupabaseConfigured) return firNumber === DEMO_FIR.fir_number ? DEMO_FIR : null;
   const { data } = await supabase.from('firs').select('*').eq('fir_number', firNumber).single();
-  return data ?? DEMO_FIR;
+  return data ?? null;
 }
 
 export async function getEntities(caseId: string): Promise<Entity[]> {
@@ -135,10 +135,9 @@ export async function addAuditLog(entry: Omit<AuditLog, 'id' | 'hash' | 'previou
 }
 
 export async function runAnalysis(caseId: string, fir: FIR): Promise<AnalysisRun> {
-  const result = analyzeFIR(fir);
-  const record = { ...result, case_id: caseId, fir_id: fir.id };
-
   if (isSupabaseConfigured) {
+    const result = analyzeFIR(fir);
+    const record = { ...result, case_id: caseId, fir_id: fir.id };
     const { data } = await supabase.from('analysis_runs').insert(record).select().single();
     await addAuditLog({
       action: 'ANALYSIS_STARTED',
@@ -156,10 +155,9 @@ export async function runAnalysis(caseId: string, fir: FIR): Promise<AnalysisRun
 }
 
 export async function runRiskAssessment(caseId: string, fir: FIR): Promise<RiskAssessment> {
-  const result = calculateRiskScore(fir);
-  const record = { ...result, case_id: caseId, fir_id: fir.id };
-
   if (isSupabaseConfigured) {
+    const result = calculateRiskScore(fir);
+    const record = { ...result, case_id: caseId, fir_id: fir.id };
     const { data } = await supabase.from('risk_assessments').insert(record).select().single();
     return data ?? { ...record, id: '', created_at: new Date().toISOString() };
   }

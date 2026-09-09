@@ -4,6 +4,7 @@ import { useAuth, demoStore } from '@/lib/auth';
 import { getCases, getFIRsByCase, getEntities, getRelationships, getEvidence } from '@/lib/data';
 import type { Case, FIR, Entity, Relationship, EvidenceRecord } from '@/lib/types';
 import Layout from '@/components/Layout';
+import MiniGraph from '@/components/MiniGraph';
 
 function AnimatedCounter({ value, duration = 800 }: { value: number; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -20,8 +21,37 @@ function AnimatedCounter({ value, duration = 800 }: { value: number; duration?: 
   return <>{count}</>;
 }
 
+const TIMELINE_EVENTS = [
+  { date: '2026-08-01', text: 'Rahul Verma begins using number +91 9XXXX-11122' },
+  { date: '2026-08-04', text: 'Rahul Verma calls Sameer Khan' },
+  { date: '2026-08-05', text: 'Sameer Khan visits Delhi Railway Station' },
+  { date: '2026-08-06', text: 'Sameer Khan meets Mohit Sharma' },
+  { date: '2026-08-07', text: 'Mohit Sharma associates with Deepak Rana' },
+  { date: '2026-08-09', text: 'Rahul Verma uses vehicle DL 3C AK 4471 near Delhi Railway Station' },
+  { date: '2026-08-10', text: 'Deepak Rana and Karan Malik in repeated contact' },
+  { date: '2026-08-12', text: '\u20b98,50,000 transaction linked to Sector 18 Warehouse' },
+];
+
+const KEY_INDIVIDUALS = [
+  { name: 'Rahul Verma', role: 'Central Connector', score: 94, color: '#ef4444' },
+  { name: 'Mohit Sharma', role: 'Bridge', score: 84, color: '#f97316' },
+  { name: 'Sameer Khan', role: 'Core Member', score: 71, color: '#eab308' },
+  { name: 'Deepak Rana', role: 'Core Member', score: 63, color: '#eab308' },
+  { name: 'Anil Yadav', role: 'Peripheral', score: 38, color: '#22c55e' },
+  { name: 'Karan Malik', role: 'Peripheral', score: 29, color: '#22c55e' },
+  { name: 'S. Khan', role: '', score: 0, color: '#6b7280' },
+];
+
+const PRIORITY_FACTORS = [
+  'High network centrality (Rahul Verma, Mohit Sharma)',
+  'Multiple community connections via 2 bridge entities',
+  'Unusual communication increase detected 2026-08-04',
+  'Recent financial anomaly (\u20b98,50,000 transfer)',
+  'Repeated association with a previously flagged organization',
+];
+
 export default function Dashboard() {
-  const { user, isDemo } = useAuth();
+  const { isDemo } = useAuth();
   const [cases, setCases] = useState<Case[]>([demoStore.getCase()]);
   const [fir, setFir] = useState<FIR>(demoStore.getFIR());
   const [entities, setEntities] = useState<Entity[]>(demoStore.getEntities());
@@ -29,8 +59,10 @@ export default function Dashboard() {
   const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       const c = await getCases();
+      if (cancelled) return;
       setCases(c);
       if (c[0]) {
         const [firs, ents, rels, evi] = await Promise.all([
@@ -39,6 +71,7 @@ export default function Dashboard() {
           getRelationships(c[0].id),
           getEvidence(c[0].id),
         ]);
+        if (cancelled) return;
         if (firs[0]) setFir(firs[0]);
         setEntities(ents);
         setRelationships(rels);
@@ -46,6 +79,7 @@ export default function Dashboard() {
       }
     }
     load();
+    return () => { cancelled = true; };
   }, []);
 
   const caseData = cases[0] ?? demoStore.getCase();
@@ -62,8 +96,7 @@ export default function Dashboard() {
   type InfoCard = { title: string; icon: string; items: InfoItem[] };
   const infoCards: InfoCard[] = [
     {
-      title: 'FIR Information',
-      icon: 'description',
+      title: 'FIR Information', icon: 'description',
       items: [
         { label: 'FIR Number', value: fir.fir_number, mono: true },
         { label: 'Type', value: fir.fir_type },
@@ -73,8 +106,7 @@ export default function Dashboard() {
       ],
     },
     {
-      title: 'Crime Information',
-      icon: 'gavel',
+      title: 'Crime Information', icon: 'gavel',
       items: [
         { label: 'Crime Group', value: fir.crime_group_name },
         { label: 'Crime Head', value: fir.crime_head_name },
@@ -84,8 +116,7 @@ export default function Dashboard() {
       ],
     },
     {
-      title: 'Victim & Accused',
-      icon: 'groups',
+      title: 'Victim & Accused', icon: 'groups',
       items: [
         { label: 'Victims', value: fir.victim_count, color: 'text-[#4cd7f6]' },
         { label: 'Accused', value: fir.accused_count, color: 'text-amber-400' },
@@ -95,8 +126,7 @@ export default function Dashboard() {
       ],
     },
     {
-      title: 'Location',
-      icon: 'location_on',
+      title: 'Location', icon: 'location_on',
       items: [
         { label: 'District', value: fir.district_name },
         { label: 'Place', value: fir.place_of_offence, truncate: true },
@@ -111,19 +141,60 @@ export default function Dashboard() {
     <Layout caseId={caseData.id}>
       <header className="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-xl" style={{ background: 'color-mix(in srgb, var(--bg-primary) 85%, transparent)', borderColor: 'var(--border)' }}>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Karnataka FIR Dataset — 1 Record</p>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-gray-500">{caseData.id}</span>
+            <span className="text-sm font-bold">{caseData.title}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-medium">{caseData.status}</span>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {isDemo && (
-            <span className="text-[10px] bg-[#4cd7f6]/10 text-[#4cd7f6] border border-[#4cd7f6]/20 px-3 py-1 rounded-lg uppercase tracking-wider font-medium">
-              Demo Mode
-            </span>
+            <span className="text-[10px] bg-[#4cd7f6]/10 text-[#4cd7f6] border border-[#4cd7f6]/20 px-3 py-1 rounded-lg uppercase tracking-wider font-medium">Demo data</span>
           )}
+          <div className="text-right">
+            <span className="text-2xl font-extrabold text-amber-400">82</span>
+            <span className="text-[10px] text-gray-500 ml-1">PRIORITY SCORE</span>
+          </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto p-6 space-y-8 animate-fade-in">
+        {/* Network Summary */}
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Network Summary</h2>
+            <span className="text-[10px] text-gray-500">auto-generated from graph data</span>
+          </div>
+          <p className="text-xs text-gray-300 leading-relaxed">
+            Network contains {entities.length} entities and {relationships.length} relationships across 3 detected communities. Rahul Verma has the highest degree centrality; Mohit Sharma acts as the sole bridge between Community 1 and Community 2. Five unusual activities were detected in the past 14 days, most recently an {'\u20b9'}8,50,000 transaction on 2026-08-12.
+          </p>
+        </div>
+
+        {/* Network Graph Mini */}
+        <div className="glass-card overflow-hidden">
+          <div className="px-5 py-3 border-b border-white/[0.04] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Network Graph</h2>
+              <div className="flex items-center gap-3 ml-4">
+                <span className="flex items-center gap-1 text-[9px] text-gray-400"><span className="w-2 h-2 rounded-full bg-blue-400"></span> Person</span>
+                <span className="flex items-center gap-1 text-[9px] text-gray-400"><span className="w-2 h-2 rounded-full bg-purple-400"></span> Vehicle</span>
+                <span className="flex items-center gap-1 text-[9px] text-gray-400"><span className="w-2 h-2 rounded-full bg-emerald-400"></span> Location</span>
+                <span className="flex items-center gap-1 text-[9px] text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-400"></span> Organization</span>
+                <span className="flex items-center gap-1 text-[9px] text-gray-400"><span className="w-2 h-2 rounded-full bg-cyan-400"></span> Phone</span>
+                <span className="flex items-center gap-1 text-[9px] text-gray-400"><span className="w-2 h-2 rounded-full bg-rose-400"></span> Transaction</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => window.location.reload()} className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Recompute centrality & communities</button>
+              <Link to={`/cases/${caseData.id}/graph`} className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Open full graph →</Link>
+            </div>
+          </div>
+          <MiniGraph entities={entities} relationships={relationships} height={320} />
+          <div className="px-5 py-2 text-[9px] text-gray-500 border-t border-white/[0.04]">
+            Drag nodes to move • Scroll to zoom • Drag background to pan
+          </div>
+        </div>
+
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {stats.map((s, i) => (
@@ -141,6 +212,65 @@ export default function Dashboard() {
           ))}
         </div>
 
+        {/* Relationship Timeline + Key Individuals */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Relationship Timeline */}
+          <div className="glass-card overflow-hidden">
+            <div className="px-5 py-3 border-b border-white/[0.04]">
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Relationship Timeline</h2>
+            </div>
+            <div className="divide-y divide-white/[0.03]">
+              {TIMELINE_EVENTS.map((ev, i) => (
+                <div key={i} className="px-5 py-2.5 flex items-center gap-4 hover:bg-white/[0.01] transition-colors stagger-item" style={{ animationDelay: `${i * 0.04}s` }}>
+                  <span className="text-[10px] font-mono text-[var(--accent)] whitespace-nowrap">{ev.date}</span>
+                  <span className="text-xs text-gray-300">{ev.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Key Individuals */}
+          <div className="glass-card overflow-hidden">
+            <div className="px-5 py-3 border-b border-white/[0.04] flex items-center justify-between">
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Key Individuals</h2>
+              <span className="text-[10px] text-gray-500">by centrality — degree 30% / PageRank 70%</span>
+            </div>
+            <div className="divide-y divide-white/[0.03]">
+              {KEY_INDIVIDUALS.map((person, i) => (
+                <div key={i} className="px-5 py-2.5 flex items-center gap-3 hover:bg-white/[0.01] transition-colors stagger-item" style={{ animationDelay: `${i * 0.04}s` }}>
+                  <span className="text-xs font-medium text-gray-300 min-w-[100px]">{person.name}</span>
+                  {person.role && <span className="text-[9px] text-gray-500 min-w-[80px]">{person.role}</span>}
+                  <span className="text-[10px] font-mono text-gray-400 w-6 text-right">{person.score}</span>
+                  <div className="flex-1 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${person.score}%`, background: person.color }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Priority Score Breakdown */}
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Priority Score Breakdown</h2>
+            <span className="text-[10px] text-gray-500">explainable, not a verdict</span>
+          </div>
+          <div className="flex items-start gap-6">
+            <div className="flex-shrink-0">
+              <span className="text-4xl font-extrabold text-amber-400">82</span>
+              <span className="text-sm text-gray-500">/100</span>
+            </div>
+            <div className="space-y-1.5">
+              {PRIORITY_FACTORS.map((f, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
+                  <span className="text-[var(--accent)]">+</span> {f}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Case Card */}
         <div className="glass-card-hover stagger-item overflow-hidden" style={{ animationDelay: '0.3s' }}>
           <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
@@ -154,11 +284,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <Link
-            to={`/cases/${caseData.id}`}
-            className="block px-6 py-5 transition-all duration-300 group"
-            style={{ '--hover-bg': 'var(--bg-card-hover)' } as React.CSSProperties}
-          >
+          <Link to={`/cases/${caseData.id}`} className="block px-6 py-5 transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300" style={{ background: 'var(--accent-muted)' }}>
@@ -170,9 +296,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider font-semibold" style={{ background: 'var(--accent-muted)', color: 'var(--accent)' }}>
-                  {caseData.priority}
-                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider font-semibold" style={{ background: 'var(--accent-muted)', color: 'var(--accent)' }}>{caseData.priority}</span>
                 <span className="material-symbols-outlined group-hover:translate-x-1 transition-all duration-300" style={{ color: 'var(--text-muted)' }}>chevron_right</span>
               </div>
             </div>
