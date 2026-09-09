@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useAuth } from '@/lib/auth';
 import { useCaseData } from '@/lib/useCaseData';
 import Layout from '@/components/Layout';
 
@@ -15,7 +14,6 @@ const DEMO_REPORT = {
 
 export default function InvestigationReports() {
   const { caseData, loading } = useCaseData();
-  const { user } = useAuth();
   const [generating, setGenerating] = useState(false);
 
   const handleExport = (format: string) => {

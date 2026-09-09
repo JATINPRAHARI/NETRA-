@@ -119,7 +119,7 @@ export default function Evidence() {
             </p>
             <p className="text-[10px] text-gray-500 mb-4">Accepted: PDF, PNG, JPG, TXT</p>
             {!uploading && (
-              <button className="px-5 py-2 bg-[#4cd7f6]/10 hover:bg-[#4cd7f6]/20 text-[#4cd7f6] font-medium text-sm rounded-xl transition-all duration-200 border border-[#4cd7f6]/20">
+              <button type="button" onClick={() => fileRef.current?.click()} className="px-5 py-2 bg-[#4cd7f6]/10 hover:bg-[#4cd7f6]/20 text-[#4cd7f6] font-medium text-sm rounded-xl transition-all duration-200 border border-[#4cd7f6]/20">
                 Select File
               </button>
             )}

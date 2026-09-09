@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useNavigate } from 'react-router-dom';
 import { getCases } from '@/lib/data';
 import type { Case } from '@/lib/types';
 import Layout from '@/components/Layout';

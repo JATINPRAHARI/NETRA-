@@ -1,4 +1,3 @@
-import { useAuth } from '@/lib/auth';
 import Layout from '@/components/Layout';
 import { DEMO_CASE } from '@/lib/demo-data';
 
@@ -24,7 +23,6 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 };
 
 export default function AdminRoles() {
-  const { } = useAuth();
   const caseData = DEMO_CASE;
 
   return (

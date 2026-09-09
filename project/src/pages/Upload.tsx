@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { useAuth } from '@/lib/auth';
 import { useCaseData } from '@/lib/useCaseData';
 import Layout from '@/components/Layout';
 
@@ -48,7 +47,6 @@ const DEMO_EXTRACTED_ENTITIES: ExtractedEntity[] = [
 ];
 
 export default function Upload() {
-  const { user } = useAuth();
   const { caseData, entities, relationships, loading } = useCaseData();
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
   const [dragOver, setDragOver] = useState(false);

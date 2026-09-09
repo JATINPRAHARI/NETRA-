@@ -423,18 +423,12 @@ export default function FullGraph() {
     const nodeB = nodesRef.current.find(n => n.entity.name === commonB);
     if (!nodeA || !nodeB) return;
     const neighborsA = new Set(edgesRef.current.filter(e => e.from.id === nodeA.id || e.to.id === nodeA.id).map(e => e.from.id === nodeA.id ? e.to.id : e.from.id));
-    const common = edgesRef.current.filter(e => {
-      const otherA = e.from.id === nodeA.id ? e.to.id : e.from.id === nodeA.id ? null : null;
-      const otherB = e.from.id === nodeB.id ? e.to.id : e.from.id === nodeB.id ? null : null;
-      return false; // simplified
-    });
     const highlight = [nodeA.id, nodeB.id];
     for (const e of edgesRef.current) {
       if ((e.from.id === nodeA.id || e.to.id === nodeA.id) && (e.from.id === nodeB.id || e.to.id === nodeB.id)) {
         highlight.push(e.from.id, e.to.id);
       }
     }
-    // Add direct neighbors that connect to both
     const neighborsB = new Set(edgesRef.current.filter(e => e.from.id === nodeB.id || e.to.id === nodeB.id).map(e => e.from.id === nodeB.id ? e.to.id : e.from.id));
     for (const n of neighborsA) { if (neighborsB.has(n)) highlight.push(n); }
     setHighlightedPath([...new Set(highlight)]);
