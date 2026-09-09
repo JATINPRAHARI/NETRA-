@@ -52,8 +52,9 @@ export default function FullGraph() {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
-    const w = container.clientWidth;
-    const h = container.clientHeight;
+    const w = container.clientWidth || window.innerWidth - 288;
+    const h = container.clientHeight || window.innerHeight - 52;
+    if (w <= 0 || h <= 0) return;
     const dpr = devicePixelRatio;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
@@ -214,10 +215,30 @@ export default function FullGraph() {
     animRef.current = requestAnimationFrame(draw);
   }, [selected, highlightedPath]);
 
-  useEffect(() => { initGraph(); }, [initGraph]);
   useEffect(() => { animRef.current = requestAnimationFrame(draw); return () => cancelAnimationFrame(animRef.current); }, [draw]);
   useEffect(() => { let f: number; const loop = () => { if (simulatingRef.current) applyForces(); f = requestAnimationFrame(loop); }; f = requestAnimationFrame(loop); return () => cancelAnimationFrame(f); }, [applyForces]);
-  useEffect(() => { const onResize = () => syncCanvasSize(); window.addEventListener('resize', onResize); return () => window.removeEventListener('resize', onResize); }, [syncCanvasSize]);
+  useEffect(() => {
+    const onResize = () => syncCanvasSize();
+    window.addEventListener('resize', onResize);
+    let ro: ResizeObserver | null = null;
+    if (containerRef.current) {
+      ro = new ResizeObserver(() => {
+        syncCanvasSize();
+        if (sizeRef.current.w > 0 && sizeRef.current.h > 0 && nodesRef.current.length === 0) {
+          initGraph();
+        }
+      });
+      ro.observe(containerRef.current);
+    }
+    syncCanvasSize();
+    if (sizeRef.current.w > 0 && sizeRef.current.h > 0) {
+      initGraph();
+    }
+    return () => {
+      window.removeEventListener('resize', onResize);
+      ro?.disconnect();
+    };
+  }, [syncCanvasSize, initGraph]);
 
   const getNodeAt = (x: number, y: number): Node | null => {
     const canvas = canvasRef.current;
