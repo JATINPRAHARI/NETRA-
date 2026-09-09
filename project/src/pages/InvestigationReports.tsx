@@ -39,8 +39,8 @@ export default function InvestigationReports() {
           <h1 className="text-2xl font-extrabold tracking-tight">Investigation Reports</h1>
           <p className="text-xs text-gray-500">Exports combine case overview, graph, timeline, evidence log, and AI summary. Demo mode: export buttons are disabled — connect the backend.</p>
         </div>
-        <button className="px-4 py-2 bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 text-[var(--accent)] font-medium text-xs rounded-xl transition-all duration-200 border border-[var(--accent)]/20">
-          GENERATE REPORT
+        <button onClick={() => handleExport('report')} disabled={generating} className="px-4 py-2 bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 text-[var(--accent)] font-medium text-xs rounded-xl transition-all duration-200 border border-[var(--accent)]/20 disabled:opacity-50">
+          {generating ? 'Generating...' : 'GENERATE REPORT'}
         </button>
       </header>
 

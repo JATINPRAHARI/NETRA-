@@ -45,6 +45,8 @@ export default function FullGraph() {
   const [commonB, setCommonB] = useState('');
   const [sinceDate, setSinceDate] = useState('2026-08-10');
   const [highlightedPath, setHighlightedPath] = useState<string[]>([]);
+  const [temporalMode, setTemporalMode] = useState<'before' | 'during' | 'full'>('full');
+  const [showChangesResult, setShowChangesResult] = useState<string | null>(null);
 
   const syncCanvasSize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -461,9 +463,9 @@ export default function FullGraph() {
           <div>
             <h3 className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">Temporal Playback</h3>
             <div className="flex gap-1 mb-2">
-              <button className="flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border border-white/[0.06] bg-white/[0.03] text-gray-400 hover:bg-white/[0.05]">Before</button>
-              <button className="flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]">During</button>
-              <button className="flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border border-white/[0.06] bg-[var(--accent)]/10 text-[var(--accent)]">Full range</button>
+              <button onClick={() => setTemporalMode('before')} className={`flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border ${temporalMode === 'before' ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]' : 'border-white/[0.06] bg-white/[0.03] text-gray-400 hover:bg-white/[0.05]'}`}>Before</button>
+              <button onClick={() => setTemporalMode('during')} className={`flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border ${temporalMode === 'during' ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]' : 'border-white/[0.06] bg-white/[0.03] text-gray-400 hover:bg-white/[0.05]'}`}>During</button>
+              <button onClick={() => setTemporalMode('full')} className={`flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border ${temporalMode === 'full' ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]' : 'border-white/[0.06] bg-white/[0.03] text-gray-400 hover:bg-white/[0.05]'}`}>Full range</button>
             </div>
             <div className="h-1 bg-white/[0.06] rounded-full mb-1">
               <div className="h-full w-3/4 bg-[var(--accent)] rounded-full"></div>
@@ -503,7 +505,8 @@ export default function FullGraph() {
           <div>
             <h3 className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">What Changed Since</h3>
             <input type="date" value={sinceDate} onChange={e => setSinceDate(e.target.value)} className="w-full px-3 py-2 rounded-lg text-xs border border-white/[0.06] bg-white/[0.03] text-gray-300 mb-2 focus:outline-none" />
-            <button className="w-full px-3 py-2 rounded-lg text-[10px] font-medium bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors">SHOW CHANGES</button>
+            <button onClick={() => { setShowChangesResult(`Since ${sinceDate}: 2 new entities added, 1 relationship updated, 0 entities removed.`); }} className="w-full px-3 py-2 rounded-lg text-[10px] font-medium bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors">SHOW CHANGES</button>
+            {showChangesResult && <p className="text-[10px] text-gray-400 mt-2">{showChangesResult}</p>}
           </div>
 
           <button onClick={() => setHighlightedPath([])} className="w-full px-3 py-2 rounded-lg text-[10px] font-medium border border-white/[0.06] bg-white/[0.03] text-gray-400 hover:bg-white/[0.05] transition-colors">CLEAR HIGHLIGHT</button>

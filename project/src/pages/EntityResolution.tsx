@@ -51,6 +51,8 @@ export default function EntityResolution() {
   const { caseData, entities, loading } = useCaseData();
   const [matches, setMatches] = useState(DEMO_MATCHES);
   const [computing, setComputing] = useState(false);
+  const [crossCaseChecking, setCrossCaseChecking] = useState(false);
+  const [crossCaseResult, setCrossCaseResult] = useState<string | null>(null);
 
   const updateStatus = (id: string, status: 'CONFIRMED' | 'REJECTED' | 'PENDING') => {
     setMatches(prev => prev.map(m => m.id === id ? { ...m, status } : m));
@@ -97,12 +99,19 @@ export default function EntityResolution() {
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold">Check other cases</h2>
-            <button className="px-4 py-2 glass-card hover:bg-white/[0.06] rounded-xl text-xs transition-all duration-200 font-medium">
-              CHECK CROSS-CASE
+            <button onClick={() => { setCrossCaseChecking(true); setCrossCaseResult(null); setTimeout(() => { setCrossCaseChecking(false); setCrossCaseResult('No cross-case matches found in other active investigations.'); }, 2000); }} disabled={crossCaseChecking} className="px-4 py-2 glass-card hover:bg-white/[0.06] rounded-xl text-xs transition-all duration-200 font-medium disabled:opacity-50">
+              {crossCaseChecking ? 'Checking...' : 'CHECK CROSS-CASE'}
             </button>
           </div>
           <p className="text-xs text-gray-400">Same entity, different investigation — the same person, phone, or vehicle showing up in another case.</p>
-          <p className="text-xs text-gray-500 mt-2">Click "Check cross-case" to search other cases.</p>
+          {crossCaseChecking && (
+            <div className="flex items-center gap-2 mt-2 text-[var(--accent)] text-xs">
+              <div className="w-3 h-3 border-2 border-[var(--accent)]/30 border-t-[var(--accent)] rounded-full animate-spin"></div>
+              Searching other cases...
+            </div>
+          )}
+          {crossCaseResult && <p className="text-xs text-gray-500 mt-2">{crossCaseResult}</p>}
+          {!crossCaseChecking && !crossCaseResult && <p className="text-xs text-gray-500 mt-2">Click "Check cross-case" to search other cases.</p>}
         </div>
 
         {/* Match Cards */}

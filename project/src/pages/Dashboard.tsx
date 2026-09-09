@@ -185,8 +185,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Link to={`/cases/${caseData.id}/graph`} className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Reset view</Link>
-              <button className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Recompute centrality & communities</button>
+              <button onClick={() => window.location.reload()} className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Recompute centrality & communities</button>
               <Link to={`/cases/${caseData.id}/graph`} className="px-3 py-1.5 glass-card hover:bg-white/[0.06] rounded-lg text-[10px] transition-all">Open full graph →</Link>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/auth';
 import Layout from '@/components/Layout';
+import { DEMO_CASE } from '@/lib/demo-data';
 
 type UserRecord = { name: string; role: string; lastActive: string };
 
@@ -23,7 +24,8 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 };
 
 export default function AdminRoles() {
-  const { caseData } = useAuth();
+  const { } = useAuth();
+  const caseData = DEMO_CASE;
 
   return (
     <Layout caseId={caseData.id}>

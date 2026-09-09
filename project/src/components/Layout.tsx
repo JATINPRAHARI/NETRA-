@@ -154,6 +154,7 @@ export default function Layout({ caseId, children }: { caseId: string; children:
 
           {/* Settings */}
           <button
+            onClick={() => alert('Settings panel coming soon.')}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group"
             style={{ color: 'var(--text-secondary)' }}
           >
