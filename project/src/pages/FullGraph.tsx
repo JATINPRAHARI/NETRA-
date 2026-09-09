@@ -218,19 +218,20 @@ export default function FullGraph() {
   useEffect(() => { animRef.current = requestAnimationFrame(draw); return () => cancelAnimationFrame(animRef.current); }, [draw]);
   useEffect(() => { let f: number; const loop = () => { if (simulatingRef.current) applyForces(); f = requestAnimationFrame(loop); }; f = requestAnimationFrame(loop); return () => cancelAnimationFrame(f); }, [applyForces]);
   useEffect(() => {
+    if (loading) return;
     const container = containerRef.current;
     if (!container) return;
-    const init = () => {
+    syncCanvasSize();
+    initGraph();
+    const ro = new ResizeObserver(() => {
       syncCanvasSize();
       if (sizeRef.current.w > 0 && sizeRef.current.h > 0) {
         initGraph();
       }
-    };
-    const ro = new ResizeObserver(() => init());
+    });
     ro.observe(container);
-    init();
     return () => ro.disconnect();
-  }, [initGraph, syncCanvasSize]);
+  }, [loading, initGraph, syncCanvasSize]);
   useEffect(() => {
     const onResize = () => { syncCanvasSize(); initGraph(); };
     window.addEventListener('resize', onResize);
