@@ -1,5 +1,4 @@
 {
   "buildCommand": "cd project && npm install --legacy-peer-deps && npm run build",
-  "outputDirectory": "project/dist",
-  "installCommand": "cd project && npm install --legacy-peer-deps"
+  "outputDirectory": "project/dist"
 }
