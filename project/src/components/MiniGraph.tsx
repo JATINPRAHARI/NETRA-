@@ -183,12 +183,20 @@ export default function MiniGraph({ entities, relationships, height = 320 }: { e
     }
 
     ctx.restore();
-    animRef.current = requestAnimationFrame(draw);
   }, []);
 
   useEffect(() => { initGraph(); }, [initGraph]);
-  useEffect(() => { animRef.current = requestAnimationFrame(draw); return () => cancelAnimationFrame(animRef.current); }, [draw]);
-  useEffect(() => { let f: number; const loop = () => { applyForces(); f = requestAnimationFrame(loop); }; f = requestAnimationFrame(loop); return () => cancelAnimationFrame(f); }, [applyForces]);
+  useEffect(() => {
+    let animFrame: number;
+    let forceFrame: number;
+    const render = () => {
+      applyForces();
+      draw();
+      animFrame = requestAnimationFrame(render);
+    };
+    animFrame = requestAnimationFrame(render);
+    return () => { cancelAnimationFrame(animFrame); cancelAnimationFrame(forceFrame); };
+  }, [draw, applyForces]);
   useEffect(() => { const onResize = () => syncCanvasSize(); window.addEventListener('resize', onResize); return () => window.removeEventListener('resize', onResize); }, [syncCanvasSize]);
 
   const getNodeAt = (x: number, y: number): Node | null => {

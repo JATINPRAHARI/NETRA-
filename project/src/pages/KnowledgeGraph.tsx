@@ -245,25 +245,19 @@ export default function KnowledgeGraph() {
     }
 
     ctx.restore();
-    animRef.current = requestAnimationFrame(draw);
   }, [selected]);
 
   useEffect(() => {
-    animRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [draw]);
-
-  useEffect(() => {
+    let animFrame: number;
     let forceFrame: number;
-    const loop = () => {
-      if (simulatingRef.current) {
-        applyForces();
-      }
-      forceFrame = requestAnimationFrame(loop);
+    const render = () => {
+      if (simulatingRef.current) applyForces();
+      draw();
+      animFrame = requestAnimationFrame(render);
     };
-    forceFrame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(forceFrame);
-  }, [applyForces]);
+    animFrame = requestAnimationFrame(render);
+    return () => { cancelAnimationFrame(animFrame); cancelAnimationFrame(forceFrame); };
+  }, [draw, applyForces]);
 
   useEffect(() => {
     if (loading) return;

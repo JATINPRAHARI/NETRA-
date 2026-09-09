@@ -212,11 +212,19 @@ export default function FullGraph() {
       ctx.fillText(node.entity.type, node.x, node.y + radius + 26);
     }
     ctx.restore();
-    animRef.current = requestAnimationFrame(draw);
   }, [selected, highlightedPath]);
 
-  useEffect(() => { animRef.current = requestAnimationFrame(draw); return () => cancelAnimationFrame(animRef.current); }, [draw]);
-  useEffect(() => { let f: number; const loop = () => { if (simulatingRef.current) applyForces(); f = requestAnimationFrame(loop); }; f = requestAnimationFrame(loop); return () => cancelAnimationFrame(f); }, [applyForces]);
+  useEffect(() => {
+    let animFrame: number;
+    let forceFrame: number;
+    const render = () => {
+      if (simulatingRef.current) applyForces();
+      draw();
+      animFrame = requestAnimationFrame(render);
+    };
+    animFrame = requestAnimationFrame(render);
+    return () => { cancelAnimationFrame(animFrame); cancelAnimationFrame(forceFrame); };
+  }, [draw, applyForces]);
   useEffect(() => {
     if (loading) return;
     const container = containerRef.current;
@@ -491,11 +499,11 @@ export default function FullGraph() {
             <h3 className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">Shortest Path Finder</h3>
             <select value={shortestFrom} onChange={e => setShortestFrom(e.target.value)} className="w-full px-3 py-2 rounded-lg text-xs border border-white/[0.06] bg-white/[0.03] text-gray-300 mb-2 focus:outline-none">
               <option value="">Select entity</option>
-              {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
+              {entities.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
             </select>
             <select value={shortestTo} onChange={e => setShortestTo(e.target.value)} className="w-full px-3 py-2 rounded-lg text-xs border border-white/[0.06] bg-white/[0.03] text-gray-300 mb-2 focus:outline-none">
               <option value="">Select entity</option>
-              {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
+              {entities.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
             </select>
             <button onClick={findShortestPath} className="w-full px-3 py-2 rounded-lg text-[10px] font-medium bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors">FIND PATH</button>
           </div>
@@ -505,11 +513,11 @@ export default function FullGraph() {
             <h3 className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">Common Connections</h3>
             <select value={commonA} onChange={e => setCommonA(e.target.value)} className="w-full px-3 py-2 rounded-lg text-xs border border-white/[0.06] bg-white/[0.03] text-gray-300 mb-2 focus:outline-none">
               <option value="">Select entity</option>
-              {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
+              {entities.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
             </select>
             <select value={commonB} onChange={e => setCommonB(e.target.value)} className="w-full px-3 py-2 rounded-lg text-xs border border-white/[0.06] bg-white/[0.03] text-gray-300 mb-2 focus:outline-none">
               <option value="">Select entity</option>
-              {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
+              {entities.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
             </select>
             <button onClick={findCommonConnections} className="w-full px-3 py-2 rounded-lg text-[10px] font-medium bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors">FIND COMMON</button>
           </div>

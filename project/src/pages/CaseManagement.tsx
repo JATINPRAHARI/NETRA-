@@ -63,7 +63,7 @@ export default function CaseManagement() {
           <p className="text-xs text-gray-500">Each case is an isolated investigation workspace: entities, documents, graph, timeline, and reports.</p>
         </div>
         <button
-          onClick={() => navigate(`/cases/${activeCaseId}`)}
+onClick={() => DEMO_CASES[0] && navigate(`/cases/${DEMO_CASES[0].id}`)}
           className="px-4 py-2 bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 text-[var(--accent)] font-medium text-xs rounded-xl transition-all duration-200 border border-[var(--accent)]/20 flex items-center gap-1.5"
         >
           <span className="material-symbols-outlined text-[14px]">add</span>

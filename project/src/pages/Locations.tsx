@@ -40,8 +40,10 @@ export default function Locations() {
     }
 
     function initMap() {
-      const Leaflet = (window as unknown as { L: typeof import('leaflet') }).L;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const Leaflet = (window as any).L;
       if (!mapRef.current || mapInstanceRef.current) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const map = Leaflet.map(mapRef.current, { zoomControl: false }).setView([28.62, 77.22], 12);
       Leaflet.control.zoom({ position: 'topright' }).addTo(map);
       Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -135,7 +137,7 @@ export default function Locations() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
-              {HOTSPOTS.sort((a, b) => b.connectedEntities - a.connectedEntities).map((h, i) => (
+              {[...HOTSPOTS].sort((a, b) => b.connectedEntities - a.connectedEntities).map((h, i) => (
                 <tr key={i} className="hover:bg-white/[0.01] transition-colors cursor-pointer" onClick={() => setSelectedLocation(h)}>
                   <td className="px-5 py-3 text-xs font-medium text-gray-300">{h.location}</td>
                   <td className="px-5 py-3 text-xs font-mono text-gray-400">{h.connectedEntities}</td>

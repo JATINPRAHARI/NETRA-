@@ -17,9 +17,9 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {
-  Admin: ['Manage users', 'Manage datasets', 'System monitoring'],
-  Investigator: ['Analyze cases', 'Upload data', 'Query networks', 'Generate reports'],
-  Supervisor: ['Review investigations', 'Review reports', 'Monitor activity'],
+  INVESTIGATOR: ['Analyze cases', 'Upload data', 'Query networks', 'Generate reports'],
+  SUPERVISOR: ['Review investigations', 'Review reports', 'Monitor activity'],
+  ADMIN: ['Manage users', 'Manage datasets', 'System monitoring'],
 };
 
 export default function AdminRoles() {

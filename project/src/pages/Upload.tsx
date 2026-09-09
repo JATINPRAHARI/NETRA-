@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCaseData } from '@/lib/useCaseData';
 import Layout from '@/components/Layout';
 
@@ -53,6 +53,11 @@ export default function Upload() {
   const [pipelineStep, setPipelineStep] = useState(0);
   const [processing, setProcessing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
 
   const handleUpload = (files: FileList | null) => {
     if (!files) return;
@@ -69,12 +74,13 @@ export default function Upload() {
     setProcessing(true);
     setPipelineStep(0);
 
+    if (intervalRef.current) clearInterval(intervalRef.current);
     let step = 0;
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       step++;
       setPipelineStep(step);
       if (step >= PIPELINE_STEPS.length - 1) {
-        clearInterval(interval);
+        clearInterval(intervalRef.current!);
         setProcessing(false);
         setUploadedDocs(prev => prev.map(d =>
           d.status === 'Processing' ? { ...d, status: 'Completed', entities: Math.floor(Math.random() * 8) + 2, relationships: Math.floor(Math.random() * 6) + 1 } : d
