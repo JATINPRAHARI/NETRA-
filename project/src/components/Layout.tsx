@@ -34,7 +34,18 @@ export default function Layout({ caseId, children }: { caseId: string; children:
   const isActive = (navPath: string) => {
     const fullPath = `${basePath}${navPath}`;
     if (navPath === '') return location.pathname === basePath;
-    return location.pathname.startsWith(fullPath);
+    const path = location.pathname;
+    if (path === fullPath) return true;
+    if (path.startsWith(fullPath + '/')) {
+      const childPrefix = fullPath + '/';
+      const hasMoreSpecificMatch = NAV.some(n => {
+        if (n.path === navPath) return false;
+        const childFull = `${basePath}${n.path}`;
+        return childFull.startsWith(childPrefix) && (path === childFull || path.startsWith(childFull + '/'));
+      });
+      return !hasMoreSpecificMatch;
+    }
+    return false;
   };
 
   return (
