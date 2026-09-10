@@ -41,7 +41,7 @@ export default function AskAI() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<boolean>(false);
 
-  const hasApiKey = Boolean(import.meta.env.VITE_XAI_API_KEY);
+  const hasApiKey = Boolean(import.meta.env.VITE_GROQ_API_KEY);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -106,7 +106,7 @@ export default function AskAI() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight">Ask AI — Investigator Assistant</h1>
-              <p className="text-xs text-gray-500">Powered by Grok AI. Answers are grounded in this case's data only.</p>
+              <p className="text-xs text-gray-500">              Powered by Groq AI. Answers are grounded in this case's data only.</p>
             </div>
             {messages.length > 0 && (
               <button
@@ -125,14 +125,14 @@ export default function AskAI() {
           <div className="glass-card p-5 flex flex-col flex-1">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xs font-bold uppercase tracking-wider">{caseData.title}</h2>
-              <span className="text-[10px] text-gray-500 font-mono">{caseData.id}{hasApiKey ? ' · Grok AI' : ' · no API key'}</span>
+              <span className="text-[10px] text-gray-500 font-mono">{caseData.id}{hasApiKey ? ' · Groq AI' : ' · no API key'}</span>
             </div>
 
             {!hasApiKey && (
               <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4">
                 <p className="text-xs text-yellow-500 font-medium">
                   <span className="material-symbols-outlined text-[14px] align-middle mr-1">warning</span>
-                  VITE_XAI_API_KEY not found. Add your xAI API key to the <code className="font-mono">.env</code> file.
+                  VITE_GROQ_API_KEY not found. Add your Groq API key to the <code className="font-mono">.env</code> file.
                 </p>
               </div>
             )}
@@ -184,7 +184,7 @@ export default function AskAI() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleAsk(input)}
-                placeholder={hasApiKey ? 'Ask about this network...' : 'Add VITE_XAI_API_KEY to .env to enable'}
+                placeholder={hasApiKey ? 'Ask about this network...' : 'Add VITE_GROQ_API_KEY to .env to enable'}
                 disabled={!hasApiKey}
                 className="flex-1 px-4 py-2.5 rounded-xl text-xs border border-white/[0.06] bg-white/[0.03] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-[var(--accent)]/30 disabled:opacity-40"
               />

@@ -1,6 +1,6 @@
 import type { Case, FIR, Entity, Relationship, RiskAssessment, AnalysisRun } from '@/lib/types';
 
-const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
+const GROK_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 function buildCaseContext(
   caseData: Case,
@@ -74,9 +74,9 @@ export async function* streamGrokChat(
   messages: { role: 'user' | 'assistant'; content: string }[],
   caseContext: string,
 ): AsyncGenerator<string> {
-  const apiKey = import.meta.env.VITE_XAI_API_KEY;
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error('VITE_XAI_API_KEY is not set. Please add your xAI API key to the .env file.');
+    throw new Error('VITE_GROQ_API_KEY is not set. Please add your Groq API key to the .env file.');
   }
 
   const response = await fetch(GROK_API_URL, {
@@ -86,7 +86,7 @@ export async function* streamGrokChat(
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'grok-3-latest',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: caseContext },
         ...messages.map(m => ({ role: m.role, content: m.content })),
@@ -105,7 +105,7 @@ export async function* streamGrokChat(
     } catch {
       errBody = await response.text().catch(() => '');
     }
-    if (response.status === 401) throw new Error('Invalid API key. Please check your VITE_XAI_API_KEY.');
+    if (response.status === 401) throw new Error('Invalid API key. Please check your VITE_GROQ_API_KEY.');
     if (response.status === 429) throw new Error('Rate limited. Please wait a moment and try again.');
     throw new Error(`Grok API error (${response.status}): ${errBody || response.statusText}`);
   }
