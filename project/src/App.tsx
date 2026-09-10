@@ -6,7 +6,6 @@ import Dashboard from '@/pages/Dashboard';
 import CaseOverview from '@/pages/CaseOverview';
 import FirDetail from '@/pages/FirDetail';
 import Entities from '@/pages/Entities';
-import KnowledgeGraph from '@/pages/KnowledgeGraph';
 import Analytics from '@/pages/Analytics';
 import Evidence from '@/pages/Evidence';
 import AuditTrail from '@/pages/AuditTrail';
@@ -15,10 +14,8 @@ import FirRegistration from '@/pages/FirRegistration';
 import Upload from '@/pages/Upload';
 import CaseManagement from '@/pages/CaseManagement';
 import EntityResolution from '@/pages/EntityResolution';
-import Locations from '@/pages/Locations';
 import CommunityDetection from '@/pages/CommunityDetection';
 import FullGraph from '@/pages/FullGraph';
-import Alerts from '@/pages/Alerts';
 import AskAI from '@/pages/AskAI';
 import AdminRoles from '@/pages/AdminRoles';
 import InvestigationReports from '@/pages/InvestigationReports';
@@ -39,7 +36,6 @@ function AppRoutes() {
       <Route path="/cases/:caseId" element={<ProtectedRoute><CaseOverview /></ProtectedRoute>} />
       <Route path="/cases/:caseId/fir" element={<ProtectedRoute><FirDetail /></ProtectedRoute>} />
       <Route path="/cases/:caseId/fir/register" element={<ProtectedRoute><FirRegistration /></ProtectedRoute>} />
-      <Route path="/cases/:caseId/graph" element={<ProtectedRoute><KnowledgeGraph /></ProtectedRoute>} />
       <Route path="/cases/:caseId/full-graph" element={<ProtectedRoute><FullGraph /></ProtectedRoute>} />
       <Route path="/cases/:caseId/evidence" element={<ProtectedRoute><Evidence /></ProtectedRoute>} />
       <Route path="/cases/:caseId/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
@@ -48,9 +44,8 @@ function AppRoutes() {
       <Route path="/cases/:caseId/entities" element={<ProtectedRoute><Entities /></ProtectedRoute>} />
       <Route path="/cases/:caseId/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
       <Route path="/cases/:caseId/resolution" element={<ProtectedRoute><EntityResolution /></ProtectedRoute>} />
-      <Route path="/cases/:caseId/locations" element={<ProtectedRoute><Locations /></ProtectedRoute>} />
       <Route path="/cases/:caseId/communities" element={<ProtectedRoute><CommunityDetection /></ProtectedRoute>} />
-      <Route path="/cases/:caseId/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+      <Route path="/cases/:caseId/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
       <Route path="/cases/:caseId/ai" element={<ProtectedRoute><AskAI /></ProtectedRoute>} />
       <Route path="/cases/:caseId/admin" element={<ProtectedRoute><AdminRoles /></ProtectedRoute>} />
       <Route path="/cases/:caseId/reports" element={<ProtectedRoute><InvestigationReports /></ProtectedRoute>} />
