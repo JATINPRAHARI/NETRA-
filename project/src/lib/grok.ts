@@ -86,7 +86,7 @@ export async function* streamGrokChat(
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       messages: [
         { role: 'system', content: caseContext },
         ...messages.map(m => ({ role: m.role, content: m.content })),
