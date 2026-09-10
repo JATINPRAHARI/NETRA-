@@ -86,7 +86,7 @@ export async function* streamGrokChat(
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'grok-3',
+      model: 'grok-3-latest',
       messages: [
         { role: 'system', content: caseContext },
         ...messages.map(m => ({ role: m.role, content: m.content })),
@@ -98,7 +98,13 @@ export async function* streamGrokChat(
   });
 
   if (!response.ok) {
-    const errBody = await response.text().catch(() => '');
+    let errBody = '';
+    try {
+      const errJson = await response.json();
+      errBody = errJson?.error?.message || JSON.stringify(errJson);
+    } catch {
+      errBody = await response.text().catch(() => '');
+    }
     if (response.status === 401) throw new Error('Invalid API key. Please check your VITE_XAI_API_KEY.');
     if (response.status === 429) throw new Error('Rate limited. Please wait a moment and try again.');
     throw new Error(`Grok API error (${response.status}): ${errBody || response.statusText}`);
